@@ -75,7 +75,7 @@
 
 
 
-  <meta name="keywords" content="HashMap,">
+  <meta name="keywords" content="Java Collections,HashMap,">
 
 
 
@@ -87,7 +87,7 @@
 
 
 <meta name="description" content="名词解释   名词 解释    哈希(hash) 预映射，将任意的输入经过哈希函数转换成对应固定长度的输出(即具体的某个对象对应一个固定的哈希编码)，如果2个散列值不一样，则2个对象也一定不一样   桶(bucket) 数组实现，哈希表具有多个桶，每个桶存放具有相同哈希编码的实体   实体(entry) 储存数据的最小单元   负载因子(load factor) 默认值为0.75,表示当前哈希表的">
-<meta name="keywords" content="HashMap">
+<meta name="keywords" content="Java Collections,HashMap">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HashMap源码原理及实现">
 <meta property="og:url" content="/2019/08/17/HashMap源码原理及实现/index.html">
@@ -96,7 +96,7 @@
 <meta property="og:locale" content="en">
 <meta property="og:image" content="/2019/08/17/HashMap源码原理及实现/hash_map_uml.png">
 <meta property="og:image" content="/2019/08/17/HashMap源码原理及实现/hash_func_during_running_image.png">
-<meta property="og:updated_time" content="2019-08-17T12:31:24.655Z">
+<meta property="og:updated_time" content="2019-08-18T09:09:33.415Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HashMap源码原理及实现">
 <meta name="twitter:description" content="名词解释   名词 解释    哈希(hash) 预映射，将任意的输入经过哈希函数转换成对应固定长度的输出(即具体的某个对象对应一个固定的哈希编码)，如果2个散列值不一样，则2个对象也一定不一样   桶(bucket) 数组实现，哈希表具有多个桶，每个桶存放具有相同哈希编码的实体   实体(entry) 储存数据的最小单元   负载因子(load factor) 默认值为0.75,表示当前哈希表的">
@@ -469,7 +469,10 @@
 <li>泊松分布</li>
 <li>红黑树</li>
 </ul>
-<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p><a href="https://yikun.github.io/2015/04/01/Java-HashMap工作原理及实现/" target="_blank" rel="noopener">https://yikun.github.io/2015/04/01/Java-HashMap%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</a></p>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><ul>
+<li><code>jdk-11.0.2</code></li>
+<li><a href="https://yikun.github.io/2015/04/01/Java-HashMap工作原理及实现/" target="_blank" rel="noopener">https://yikun.github.io/2015/04/01/Java-HashMap%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</a></li>
+</ul>
 
       
     </div>
@@ -486,6 +489,8 @@
     <footer class="post-footer">
       
         <div class="post-tags">
+          
+            <a href="/tags/Java-Collections/" rel="tag"># Java Collections</a>
           
             <a href="/tags/HashMap/" rel="tag"># HashMap</a>
           
@@ -509,6 +514,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/17/LinkedHashMap源码实现分析/" rel="prev" title="LinkedHashMap源码实现分析">
+                LinkedHashMap源码实现分析 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -586,7 +595,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -608,7 +617,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -691,7 +700,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">1.9k</span>
+    <span title="Site words total count">3.5k</span>
   
 </div>
 

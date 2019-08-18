@@ -269,6 +269,225 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="/2019/08/17/LinkedHashMap源码实现分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="stupid_wolf">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="stupid_wolf">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/17/LinkedHashMap源码实现分析/" itemprop="url">LinkedHashMap源码实现分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-17T23:21:17+08:00">
+                2019-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Core-Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Core Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Words count in article&#58;</span>
+                
+                <span title="Words count in article">
+                  1.6k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Reading time &asymp;</span>
+                
+                <span title="Reading time">
+                  7
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="基本描述"><a href="#基本描述" class="headerlink" title="基本描述"></a>基本描述</h3><ul>
+<li>基于HashMap和链表并且具有可预知遍历顺序的Map接口实现，遍历顺序与mapping被添加进来时的顺序一致。跟HashMap不同之处在于，它维护一个运行于所有实体中的双链表，该链表定义了遍历的顺序</li>
+<li>需要注意的是，如果重新插入一个key，插入顺序不会受到影响(这里指的应该是accessOrder=false的情景)</li>
+<li>提供一个特别的构造方法，能够提供遍历顺序按照最少使用(least-recently)到最常使用(most-recently)，这种类型的Map比较符合构建LRU缓存的需求。<code>removeEldestEntry(Map.Entry)</code>方法可能需要被重写，从而在有新的mapping增加时，提供一个策略来自动删除比较旧的元素</li>
+<li>跟HashMap类似，允许空的元素，一些基本的操作(add, contains and remove)提供常量时间的性能，对比于HashMap，因为维护双链表需要开销，不过性能只稍微低于HashMap（不过有一个地方除外: 全局遍历的性能比HashMap的要好，LinkedHashMap只需要遍历链表，而HashMap需要遍历整个桶）</li>
+<li>非同步，可使用装饰模式<code>Map m = Collections.synchronizedMap(new LinkedHashMap(...))</code>将其转换为同步的map</li>
+<li>在迭代遍历Map时，如果map内部结构发生修改，则会引起<code>fail-fast</code>，抛出<code>ConcurrentModificationException</code>异常。特别的一点，具有访问顺序(<code>access-ordered</code>)要求的map，仅仅是简单的查询方法例如: <code>get函数</code>也会引起内部结构的变化</li>
+</ul>
+<h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="/2019/08/17/LinkedHashMap源码实现分析/class-uml.png" alt="class-uml-img"></p>
+<h3 id="内部数据结构"><a href="#内部数据结构" class="headerlink" title="内部数据结构"></a>内部数据结构</h3><p>依次插入如下数据，假设key: “Math”, “English”经过hash函数处理后被映射到下标1上,Key: “Chinese”映射在下标4上</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LinkedHashMap&lt;String, String&gt; map = <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</span><br><span class="line">map.put(<span class="string">"Math"</span>, <span class="string">"90"</span>);</span><br><span class="line">map.put(<span class="string">"Chinese"</span>, <span class="string">"98"</span>);</span><br><span class="line">map.put(<span class="string">"English"</span>, <span class="string">"88"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>在LinkedHashMap内部，里面桶以及双链表的结构如下图:</p>
+<p><img src="/2019/08/17/LinkedHashMap源码实现分析/inner-ds-img.png" alt></p>
+<p>遍历map时，将直接遍历双链表，顺序与被插入的顺序一致:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;Math&quot;=&quot;90&quot;, &quot;Chinese&quot;=&quot;98&quot;, &quot;English&quot;=&quot;88&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><h4 id="双链表节点数据结构"><a href="#双链表节点数据结构" class="headerlink" title="双链表节点数据结构"></a>双链表节点数据结构</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">HashMap</span>.<span class="title">Node</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    Entry&lt;K,V&gt; before, after;</span><br><span class="line">    Entry(<span class="keyword">int</span> hash, K key, V value, Node&lt;K,V&gt; next) &#123;</span><br><span class="line">        <span class="keyword">super</span>(hash, key, value, next);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>基于<code>HashMap.Node</code>，新增属性<code>before</code>,<code>after</code></li>
+<li>使用双链表的一个好处是节点能够在删除时，不需要跟其它的节点关联，例如删除节点e，假设e的前后序节点都不为空，可直接这样进行删除:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将e节点的前序节点的next指针指向e节点的后续节点</span></span><br><span class="line">e.before.next = e.next;</span><br><span class="line"><span class="comment">// 将e节点的后序节点的before指针指向e的前序节点</span></span><br><span class="line">e.next.before = e.before;</span><br><span class="line">e.before = <span class="keyword">null</span>;</span><br><span class="line">e.next = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数"><a href="#linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数" class="headerlink" title="linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数"></a><code>linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)</code>函数</h4><p>将当前节点p添加到双链表的尾部</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The head (eldest) of the doubly linked list.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; head;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The tail (youngest) of the doubly linked list.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; tail;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">linkNodeLast</span><span class="params">(LinkedHashMap.Entry&lt;K,V&gt; p)</span> </span>&#123;</span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; last = tail;</span><br><span class="line">    tail = p;</span><br><span class="line">    <span class="comment">// last为空,说明当前双链表暂未有元素,此时让head指向p</span></span><br><span class="line">    <span class="keyword">if</span> (last == <span class="keyword">null</span>)</span><br><span class="line">        head = p;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 设置p节点为双链表的尾节点</span></span><br><span class="line">        p.before = last;</span><br><span class="line">        last.after = p;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst"><a href="#transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst" class="headerlink" title="transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)"></a>transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)</h4><p>在由普通节点(pain node)转树节点(tree node)或者树节点转普通节点后，更新双链表中对应节点的旧节点信息为新的节点信息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">transferLinks</span><span class="params">(LinkedHashMap.Entry&lt;K,V&gt; src,</span></span></span><br><span class="line"><span class="function"><span class="params">                            LinkedHashMap.Entry&lt;K,V&gt; dst)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//src 原节点信息，转换之前的旧节点</span></span><br><span class="line">    <span class="comment">//dst 新节点信息，转换之后的新节点</span></span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; b = dst.before = src.before;</span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; a = dst.after = src.after;</span><br><span class="line">    <span class="keyword">if</span> (b == <span class="keyword">null</span>)</span><br><span class="line">        head = dst;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        b.after = dst;</span><br><span class="line">    <span class="keyword">if</span> (a == <span class="keyword">null</span>)</span><br><span class="line">        tail = dst;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        a.before = dst;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="afterNodeRemoval-Node-lt-K-V-gt-e"><a href="#afterNodeRemoval-Node-lt-K-V-gt-e" class="headerlink" title="afterNodeRemoval(Node&lt;K,V&gt; e)"></a>afterNodeRemoval(Node&lt;K,V&gt; e)</h4><p>在删除桶中对应的node节点后被调用，用来清除双链表对应的节点</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">afterNodeRemoval</span><span class="params">(Node&lt;K,V&gt; e)</span> </span>&#123; <span class="comment">// unlink</span></span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; p =</span><br><span class="line">        (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</span><br><span class="line">    p.before = p.after = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 若当前被删除节点为头节点，则设置当前节点的后序节点为头节点</span></span><br><span class="line">    <span class="comment">// 否则设置被删除节点的前序节点的后序指针指向被删除元素的后序节点</span></span><br><span class="line">    <span class="keyword">if</span> (b == <span class="keyword">null</span>)</span><br><span class="line">        head = a;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        b.after = a;</span><br><span class="line">    <span class="comment">// 若当前被删除节点为链表的尾节点，则让tail指针指向被删除节点的前序节点</span></span><br><span class="line">    <span class="comment">// 否则，设置被删除节点对应的后序节点的前序指针指向被删节点的前序节点</span></span><br><span class="line">    <span class="keyword">if</span> (a == <span class="keyword">null</span>)</span><br><span class="line">        tail = b;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        a.before = b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="afterNodeInsertion-boolean-evict"><a href="#afterNodeInsertion-boolean-evict" class="headerlink" title="afterNodeInsertion(boolean evict)"></a>afterNodeInsertion(boolean evict)</h4><p>当有新的元素插入时执行，若满足<code>removeEldestEntry</code>时，则会删除LinkedHashMap中双链表对应的首个元素（从buckets和double-linked list结构中分别清除）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">afterNodeInsertion</span><span class="params">(<span class="keyword">boolean</span> evict)</span> </span>&#123; <span class="comment">// possibly remove eldest</span></span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; first;</span><br><span class="line">    <span class="keyword">if</span> (evict &amp;&amp; (first = head) != <span class="keyword">null</span> &amp;&amp; removeEldestEntry(first)) &#123;</span><br><span class="line">        K key = first.key;</span><br><span class="line">        <span class="comment">// 删除首个元素(最近最少使用)</span></span><br><span class="line">        removeNode(hash(key), key, <span class="keyword">null</span>, <span class="keyword">false</span>, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>evict</code> 参数的理解: 是否清除元素，只有在初始化构造map时(例如: 反序列,使用Map参数类型的构造方法创建对象)为false，其它时候为trues</p>
+<h4 id="afterNodeAccess-Node-lt-K-V-gt-e"><a href="#afterNodeAccess-Node-lt-K-V-gt-e" class="headerlink" title="afterNodeAccess(Node&lt;K,V&gt; e)"></a>afterNodeAccess(Node&lt;K,V&gt; e)</h4><p>在元素被访问后(<code>get</code>,<code>put</code>等些方法)将其放置到双链表的尾部</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">afterNodeAccess</span><span class="params">(Node&lt;K,V&gt; e)</span> </span>&#123; <span class="comment">// move node to last</span></span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; last;</span><br><span class="line">    <span class="keyword">if</span> (accessOrder &amp;&amp; (last = tail) != e) &#123;</span><br><span class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</span><br><span class="line">            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</span><br><span class="line">        p.after = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (b == <span class="keyword">null</span>)</span><br><span class="line">            head = a;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            b.after = a;</span><br><span class="line">        <span class="keyword">if</span> (a != <span class="keyword">null</span>)</span><br><span class="line">            a.before = b;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            last = b;</span><br><span class="line">        <span class="keyword">if</span> (last == <span class="keyword">null</span>)</span><br><span class="line">            head = p;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            p.before = last;</span><br><span class="line">            last.after = p;</span><br><span class="line">        &#125;</span><br><span class="line">        tail = p;</span><br><span class="line">        ++modCount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用LinkedHashMap实现简单的LRU缓存"><a href="#利用LinkedHashMap实现简单的LRU缓存" class="headerlink" title="利用LinkedHashMap实现简单的LRU缓存"></a>利用LinkedHashMap实现简单的LRU缓存</h3><p>问题描述: <a href="https://leetcode.com/problems/lru-cache/" target="_blank" rel="noopener">LeetCode LRU Cache</a><br>基于LinkedHashMap实现:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LRUCache</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> LinkedHashMap&lt;Integer, Integer&gt; cache;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LRUCache</span><span class="params">(<span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 设置桶的初始容量为: cap / 0.75 + 1</span></span><br><span class="line">        cache = <span class="keyword">new</span> LinkedHashMap&lt;Integer, Integer&gt;((<span class="keyword">int</span>)(capacity/<span class="number">0.75</span>) + <span class="number">1</span>, <span class="number">0.75F</span>, <span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">removeEldestEntry</span><span class="params">(Map.Entry&lt;Integer, Integer&gt; eldest)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> cache.size() &gt; capacity;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">get</span><span class="params">(<span class="keyword">int</span> key)</span> </span>&#123;</span><br><span class="line">         Integer val; </span><br><span class="line">         <span class="keyword">return</span> (val = cache.get(key)) != <span class="keyword">null</span> ? val : -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(<span class="keyword">int</span> key, <span class="keyword">int</span> value)</span> </span>&#123;</span><br><span class="line">        cache.put(key, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>注</code>: 当然感兴趣的话，也可以自己实现个双链表结构，基于HashMap实现类似的LRU缓存</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><code>jdk-11.0.2</code></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="/2019/08/17/HashMap源码原理及实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -469,7 +688,10 @@
 <li>泊松分布</li>
 <li>红黑树</li>
 </ul>
-<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p><a href="https://yikun.github.io/2015/04/01/Java-HashMap工作原理及实现/" target="_blank" rel="noopener">https://yikun.github.io/2015/04/01/Java-HashMap%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</a></p>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><ul>
+<li><code>jdk-11.0.2</code></li>
+<li><a href="https://yikun.github.io/2015/04/01/Java-HashMap工作原理及实现/" target="_blank" rel="noopener">https://yikun.github.io/2015/04/01/Java-HashMap%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</a></li>
+</ul>
 
           
         
@@ -714,7 +936,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -736,7 +958,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -803,7 +1025,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">1.9k</span>
+    <span title="Site words total count">3.5k</span>
   
 </div>
 
