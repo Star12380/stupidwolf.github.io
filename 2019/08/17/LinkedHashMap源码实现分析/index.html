@@ -96,7 +96,7 @@
 <meta property="og:locale" content="en">
 <meta property="og:image" content="/2019/08/17/LinkedHashMap源码实现分析/class-uml.png">
 <meta property="og:image" content="/2019/08/17/LinkedHashMap源码实现分析/inner-ds-img.png">
-<meta property="og:updated_time" content="2019-08-19T04:44:59.044Z">
+<meta property="og:updated_time" content="2019-08-19T04:49:08.242Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LinkedHashMap源码实现分析">
 <meta name="twitter:description" content="简介键值对的Map接口的实现，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足一定条件时，map 自动淘汰一些过期元素 基本描述 基于HashMap和双">
@@ -393,7 +393,7 @@
       
 
       
-        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>键值对的Map接口的实现，支持<code>get</code>, <code>put</code>等些基本操作<code>O(1)</code>时间复杂度的支持，允许<code>null</code>的<code>mapping</code>，但与<code>HashMap</code>不同的一点是，其支持按照<code>mapping</code>被添加进来的顺序进行遍历。还有特殊的一点，如果该<code>map</code>是以<code>access-ordered</code>方式构建的，可以用来构建简单的<code>LRU(最近最少使用)</code>的缓存，在满足一定条件时，<code>map</code> 自动淘汰一些过期元素</p>
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>键值对的<code>Map接口</code>的实现，支持<code>get</code>, <code>put</code>等些基本操作<code>O(1)</code>时间复杂度的支持，允许<code>null</code>的<code>mapping</code>，但与<code>HashMap</code>不同的一点是，其支持按照<code>mapping</code>被添加进来的顺序进行遍历。还有特殊的一点，如果该<code>map</code>是以<code>access-ordered</code>方式构建的，可以用来构建简单的<code>LRU(最近最少使用)</code>的缓存，在满足一定条件时，<code>map</code> 自动淘汰一些过期元素</p>
 <h3 id="基本描述"><a href="#基本描述" class="headerlink" title="基本描述"></a>基本描述</h3><ul>
 <li>基于<code>HashMap</code>和<code>双链表</code>并且具有可预知遍历顺序的<code>Map接口</code>实现，遍历顺序与<code>mapping</code>被添加进来时的顺序一致。跟HashMap不同之处在于，它维护一个运行于所有实体中的双链表，该链表定义了遍历的顺序</li>
 <li>需要注意的是，如果重新插入一个<code>key</code>，插入顺序不会受到影响(这里指的应该是<code>accessOrder=false</code>的情景)</li>
@@ -419,7 +419,7 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将e节点的前序节点的next指针指向e节点的后续节点</span></span><br><span class="line">e.before.next = e.next;</span><br><span class="line"><span class="comment">// 将e节点的后序节点的before指针指向e的前序节点</span></span><br><span class="line">e.next.before = e.before;</span><br><span class="line">e.before = <span class="keyword">null</span>;</span><br><span class="line">e.next = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
 
-<h4 id="linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数"><a href="#linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数" class="headerlink" title="linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数"></a><code>linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)</code>函数</h4><p>将当前节点p添加到双链表的尾部</p>
+<h4 id="linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数"><a href="#linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数" class="headerlink" title="linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数"></a>linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数</h4><p>将当前节点p添加到双链表的尾部</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The head (eldest) of the doubly linked list.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; head;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The tail (youngest) of the doubly linked list.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; tail;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">linkNodeLast</span><span class="params">(LinkedHashMap.Entry&lt;K,V&gt; p)</span> </span>&#123;</span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; last = tail;</span><br><span class="line">    tail = p;</span><br><span class="line">    <span class="comment">// last为空,说明当前双链表暂未有元素,此时让head指向p</span></span><br><span class="line">    <span class="keyword">if</span> (last == <span class="keyword">null</span>)</span><br><span class="line">        head = p;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 设置p节点为双链表的尾节点</span></span><br><span class="line">        p.before = last;</span><br><span class="line">        last.after = p;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst"><a href="#transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst" class="headerlink" title="transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)"></a>transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)</h4><p>在由普通节点(pain node)转树节点(tree node)或者树节点转普通节点后，更新双链表中对应节点的旧节点信息为新的节点信息</p>
@@ -487,6 +487,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/19/TreeMap源码实现分析/" rel="prev" title="TreeMap源码实现分析">
+                TreeMap源码实现分析 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -564,7 +568,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -575,7 +579,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -586,7 +590,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -669,7 +673,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">3.7k</span>
+    <span title="Site words total count">6.8k</span>
   
 </div>
 

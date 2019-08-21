@@ -269,6 +269,625 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="/2019/08/20/红黑树/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="stupid_wolf">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="stupid_wolf">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/20/红黑树/" itemprop="url">红黑树</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-20T15:25:39+08:00">
+                2019-08-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Data-Structure/" itemprop="url" rel="index">
+                    <span itemprop="name">Data Structure</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Words count in article&#58;</span>
+                
+                <span title="Words count in article">
+                  1.4k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Reading time &asymp;</span>
+                
+                <span title="Reading time">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>一般的<a href="/2019/08/20/二叉搜索树/" title="二叉搜索树">二叉搜索树</a><code>search</code>,<code>insert</code>,<code>remove</code>等操作的时间复杂度为<code>O(h)</code>，<code>h</code>为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为<code>O(n)</code></p>
+<h3 id="红黑树的性质"><a href="#红黑树的性质" class="headerlink" title="红黑树的性质"></a>红黑树的性质</h3><p>红黑树是一棵二叉搜索树，它在每个结点上增加了一个存储位来表示结点的颜色，可以是<code>RED</code>或者<code>BLACK</code>。通过对任何一条从根结点到叶子结点的简单路径上各个结点的颜色进行约束，红黑树确保没有一条路径会比其它路径长出2倍，因而是近似于平衡的。</p>
+<ol>
+<li>每个结点或是红色或是黑色</li>
+<li>根结点是黑色的</li>
+<li>每个叶子节点(<code>null</code>)都是黑色的</li>
+<li>如果一个结点是红色的，则它的两个子结点都是黑色</li>
+<li>对每个结点，从该结点到其所有后代叶子结点的简单路径上，均包含相同数目的黑色结点</li>
+</ol>
+<h3 id="常见操作"><a href="#常见操作" class="headerlink" title="常见操作"></a>常见操作</h3><h4 id="旋转"><a href="#旋转" class="headerlink" title="旋转"></a>旋转</h4><p>旋转: 一种能够保持二叉搜索树性质的局部操作，分别有左旋转，右旋转<br><code>注(仅是个人理解)</code>: 左旋转，能够让左子树的深度+1;右旋转，能够让右子树深度+1，从而达到在不改变搜索树性质的同时，适当调整树的深度，避免搜索树出现链化</p>
+<p><img src="/2019/08/20/红黑树/tree-rotate.png" alt="tree-rotate-img"></p>
+<p>伪代码:</p>
+<ul>
+<li>左旋转</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LEFT-ROTATE(T,x):</span><br><span class="line">y = x.right</span><br><span class="line">x.right = y.left</span><br><span class="line">if y.left != null</span><br><span class="line">    y.left.p = x</span><br><span class="line">y.p = x.p</span><br><span class="line">if x.p == null</span><br><span class="line">    T.root = y</span><br><span class="line">elseif x == x.p.left</span><br><span class="line">    x.p.left = y</span><br><span class="line">else x.p.right = y</span><br><span class="line">y.left = x</span><br><span class="line">x.p = y</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>右旋转</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">RIGHT-ROTATE(T,x):</span><br><span class="line">y = x.left</span><br><span class="line">x.left = y.right</span><br><span class="line">if y.right != null</span><br><span class="line">    y.right.p = x</span><br><span class="line">y.p = x.p</span><br><span class="line">if x.p == null</span><br><span class="line">    T.root = y</span><br><span class="line">elseif x == x.p.left</span><br><span class="line">    x.p.left = y</span><br><span class="line">else x.p.right = y</span><br><span class="line">y.right = x</span><br><span class="line">x.p = y</span><br></pre></td></tr></table></figure>
+
+<h4 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h4><p>往红黑树T上插入z结点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">RB-INSERT(T,z):</span><br><span class="line">y = null</span><br><span class="line">x = T.root</span><br><span class="line">while x != null</span><br><span class="line">    y = x</span><br><span class="line">    if z.key &lt; x.key</span><br><span class="line">        x = x.left</span><br><span class="line">    else x = x.right</span><br><span class="line">z.p = y</span><br><span class="line">if y == null</span><br><span class="line">    T.root = z</span><br><span class="line">elseif z.key &lt; y.key</span><br><span class="line">    y.left = z</span><br><span class="line">else y.right = z</span><br><span class="line">z.left = null</span><br><span class="line">z.right = null</span><br><span class="line">z.color = RED</span><br><span class="line">RB-INSERT-FIXUP(T,z)</span><br></pre></td></tr></table></figure>
+
+<p><code>RB-FIXUP函数</code>处理了对应的3种情景(但是为什么这样处理，脑壳子转不过来 ┭┮﹏┭┮)<br>当新插入结点的父结点为红色时需要处理以下情景:</p>
+<ul>
+<li>case 1: z结点的uncle结点颜色为RED，此时将z.p 以及 uncle(z)的color设置为BLACK，并且加z.p.p颜色设置为RED</li>
+<li>case 2: z结点的uncle结点颜色为黑色，并且z为其父结点的右孩子，此时通过左旋转z.p结点，将问题转换为case 3</li>
+<li>case 3: z结点的uncle结点颜色为黑色，并且z为其父接待你的左孩子，设置z.p.color = BLACK，并对z.p.p结点进行右旋转</li>
+</ul>
+<p><img src="/2019/08/20/红黑树/rb-tree-insert-fixup-img.png" alt="rb-tree-insert-fixup-img"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">RB-INSERT-FIXUP(T,z):</span><br><span class="line">while z.p.color == RED</span><br><span class="line">    if z.p == z.p.p.left</span><br><span class="line">        y = z.p.p.right//uncle node</span><br><span class="line">        if y.color == RED//case 1</span><br><span class="line">            z.p.color = BLACK</span><br><span class="line">            y.color = BLACK</span><br><span class="line">            z.p.p.color = RED</span><br><span class="line">            z = z.p.p</span><br><span class="line">        elseif z == z.p.right//case 2</span><br><span class="line">            z = z.p//通过左旋转，将其转换为case 3</span><br><span class="line">            LEFT-ROTATE(T,z)</span><br><span class="line">        z.p.color = BLACK// case 3</span><br><span class="line">        z.p.p.color = RED</span><br><span class="line">        RIGHT-ROTATE(T,z.p.p)</span><br><span class="line">    else(same as then clause with &quot;right&quot; and left exchanged)</span><br><span class="line">T.root.color = BLACK</span><br></pre></td></tr></table></figure>
+
+<h4 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h4><p>-<code>RB-TRANSPLANT</code><br>使用v结点替换红黑树T中u结点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">RB-TRANSPLANT(T,u,v):</span><br><span class="line">if u.p == null</span><br><span class="line">    T.root = v</span><br><span class="line">elseif u.p.left == u</span><br><span class="line">    u.p.left = u</span><br><span class="line">else u.p.right = u</span><br><span class="line">v.p = u.p</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>RB-DELETE(T,z)</code><br>从红黑树中删除结点z</li>
+<li>变量x指向y结点原来的位置(或y结点的位置)</li>
+<li>只有当结点y的原颜色为BLACK时才需要对树结构进行调整，当y-original-color=RED时<br>  1) 树中的黑高没有改变<br>  2) 不存在2个相邻的红结点<br>  3) 如果y是红色，就不可能是根结点，所以根结点仍旧是黑色</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">RB-DELETE(T,z):</span><br><span class="line">y = z</span><br><span class="line">y-original-color = y.color</span><br><span class="line">if z.left == null</span><br><span class="line">    x = z.right</span><br><span class="line">    RB-TRANSPLANT(T,z,z.right)</span><br><span class="line">elseif z.right == null</span><br><span class="line">    x = z.left</span><br><span class="line">    RB-TRANSPLANT(T,z,z.left)</span><br><span class="line">else </span><br><span class="line">    y = TREE-MINIMUM(z.right)</span><br><span class="line">    y-original-color = y.color</span><br><span class="line">    x = y.right</span><br><span class="line">    if y.p == z</span><br><span class="line">        x.p = y</span><br><span class="line">    else RB-TRANPLANT(T,y,y.right)</span><br><span class="line">        y.right = z.right</span><br><span class="line">        y.right.p = y</span><br><span class="line">    RB-TRANPLANT(T,z,y)</span><br><span class="line">    y.left = z.left</span><br><span class="line">    y.left.p = y</span><br><span class="line">    y.color = z.color</span><br><span class="line">if y-original-color == BLACK</span><br><span class="line">    RB-DELETE-FIXUP(T,x)</span><br></pre></td></tr></table></figure>
+
+<p>删除结点z之后，可能会存在以下问题:<br>1) 如果y是原来的根结点，而y的一个红色孩子成为新的根结点，这就违反了性质2<br>2) 如果x与x.p都是红色的，则违反了性质4<br>3) 在树中移动y将导致先前包含y的任何简单路径上的黑结点个数减少1，因此，y的任何祖先都不满足性质5</p>
+<ul>
+<li><code>RB-DELETE-FIXUP</code><br>修正删除节点后的红黑树(脑壳疼 ┭┮﹏┭┮)</li>
+</ul>
+<p><img src="/2019/08/20/红黑树/rb-tree-delete-fixup-img.png" alt="rb-tree-delete-fixup-img"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">RB-DELETE-FIXUP(T,x):</span><br><span class="line">whle x != null and x.color == BLACK</span><br><span class="line">    if x == x.p.left</span><br><span class="line">        w = x.p.right</span><br><span class="line">        if w.color == RED//case 1</span><br><span class="line">            w.color = BLACK</span><br><span class="line">            x.p.color == RED</span><br><span class="line">            LEFT-ROTATE(T,x.p)</span><br><span class="line">            w = x.p.right</span><br><span class="line">        if w.left.color == BLACK and w.right.color == BLACK // case 2</span><br><span class="line">            w.color = RED</span><br><span class="line">            x = x.p</span><br><span class="line">        elseif w.right.color == BLACK // case 3</span><br><span class="line">            w.left.color = BLACK</span><br><span class="line">            w.color = RED</span><br><span class="line">            RIGHT-ROTATE(T,w)</span><br><span class="line">            w = x.p.right</span><br><span class="line">        w.color = x.p.color//case 4</span><br><span class="line">        x.p.color = BLACK</span><br><span class="line">        w.right.color = BLACK</span><br><span class="line">        LEFT-ROTATE(T,x.p)</span><br><span class="line">        x = T.root</span><br><span class="line">    else (same as then clause with &quot;right&quot; and &quot;left&quot; exchanged)</span><br><span class="line">x.color = BLACK</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>关于红黑树在插入删除元素之后的调整(特别是删除后的调整操作)，暂时理解得不是太好，后面需要再继续学习掌握</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li>算法导论第13章</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="/2019/08/20/二叉搜索树/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="stupid_wolf">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="stupid_wolf">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/20/二叉搜索树/" itemprop="url">二叉搜索树</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-20T13:16:55+08:00">
+                2019-08-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Data-Structure/" itemprop="url" rel="index">
+                    <span itemprop="name">Data Structure</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Words count in article&#58;</span>
+                
+                <span title="Words count in article">
+                  677
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Reading time &asymp;</span>
+                
+                <span title="Reading time">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>满足如下特点的二叉树: 设<code>x</code>为二叉搜索树中的结点。如果<code>y</code>是<code>x</code>左子树中的一个结点，那么<code>y.key &lt;= x.key</code>。如果<code>y</code>是<code>x</code>的右子树中的一个结点，那么<code>y.key &gt;= x.key</code></p>
+<h3 id="基本操作-伪代码，摘自算法导论第12章"><a href="#基本操作-伪代码，摘自算法导论第12章" class="headerlink" title="基本操作(伪代码，摘自算法导论第12章)"></a>基本操作(伪代码，摘自<em>算法导论第12章</em>)</h3><h4 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">INORDER-TREE-WALK(x)</span><br><span class="line">    if x != null</span><br><span class="line">        INORDER-TREE-WALK(x.left)</span><br><span class="line">        print x.key</span><br><span class="line">        INORDER-TREE-WALK(x.right)</span><br></pre></td></tr></table></figure>
+
+<h4 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TREE-SEARCH(x, k)</span><br><span class="line">    if x == null or k == x.key</span><br><span class="line">        return x</span><br><span class="line">    if k &lt; x.key</span><br><span class="line">        return TREE-SEARCH(x.left, k)</span><br><span class="line">    return TREE-SEARCH(x.right, k)</span><br></pre></td></tr></table></figure>
+
+<h4 id="最小结点查询"><a href="#最小结点查询" class="headerlink" title="最小结点查询"></a>最小结点查询</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TREE-MINIMUM(x)</span><br><span class="line">    while x.left != null</span><br><span class="line">        x = x.left</span><br><span class="line">    return x</span><br></pre></td></tr></table></figure>
+
+<h4 id="最大结点查询"><a href="#最大结点查询" class="headerlink" title="最大结点查询"></a>最大结点查询</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TREE-MAXIMUM(x)</span><br><span class="line">    while x,right != null</span><br><span class="line">        x = x.right</span><br><span class="line">    return x</span><br></pre></td></tr></table></figure>
+
+<h4 id="后继结点"><a href="#后继结点" class="headerlink" title="后继结点"></a>后继结点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TREE-SUCCESSOR</span><br><span class="line">    if x.right != null</span><br><span class="line">        return TREE-MINIMUM(x.right)</span><br><span class="line">    y = x.p</span><br><span class="line">    while y != null and x == y.right</span><br><span class="line">        x = y</span><br><span class="line">        y = y.p</span><br><span class="line">    return y</span><br></pre></td></tr></table></figure>
+
+<h4 id="前驱结点"><a href="#前驱结点" class="headerlink" title="前驱结点"></a>前驱结点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TREE-PREDECESSOR</span><br><span class="line">    if x.left != null</span><br><span class="line">        return TREE-MAXIMUM(x.left)</span><br><span class="line">    y = x.p</span><br><span class="line">    while y != null and x == y.left</span><br><span class="line">        x = y</span><br><span class="line">        y = y.p</span><br><span class="line">    return y</span><br></pre></td></tr></table></figure>
+
+<h4 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">TREE-INSERT(T, z)</span><br><span class="line">    y = null</span><br><span class="line">    x = T.root</span><br><span class="line">    while x != null</span><br><span class="line">        y = x</span><br><span class="line">        if z.key &lt; x.key</span><br><span class="line">            x = x.left</span><br><span class="line">        else x = x.right</span><br><span class="line">    z.p = y</span><br><span class="line">    if y == null</span><br><span class="line">        T.root = z</span><br><span class="line">    else if z.key &lt; y.key</span><br><span class="line">        y.left = z</span><br><span class="line">    else y.right = z</span><br></pre></td></tr></table></figure>
+
+<h4 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h4><ul>
+<li><p>子过程<code>TRANSPLANT</code>，用来用另一棵树替换一棵子树，并成为其双亲的孩子结点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TRANSPLANT(T,u,v)</span><br><span class="line">    if u.p == null</span><br><span class="line">        T.root = v</span><br><span class="line">    elseif u == u.p.left</span><br><span class="line">        u.p.left = v</span><br><span class="line">    else u.p.right = v</span><br><span class="line">    if v != null</span><br><span class="line">        v.p = u.p</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除结点</p>
+</li>
+</ul>
+<ol>
+<li><code>z结点</code>只存在左子树</li>
+<li><code>z结点</code>只存在右子树</li>
+<li><code>z结点</code>存在左右子树<br> 3.1. <code>z结点</code>的后继结点<code>y</code>为<code>z</code>的直接右孩子<br> 3.2. <code>z结点</code>的后继结点<code>y</code>不是<code>z</code>的直接右孩子</li>
+</ol>
+<p><img src="/2019/08/20/二叉搜索树/tree-delete-img.png" alt="tree-delete-img"></p>
+<p>实现伪代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TREE-DELETE(T, z)</span><br><span class="line">    //1:如果z结点的左子树为空，则直接用z结点的右子树替换z原来的位置</span><br><span class="line">    if z.left == null</span><br><span class="line">        TRANSPLANT(T,z,z.right)</span><br><span class="line">    //2:如果z结点的右子树为空，则直接用z结点的左子树替换z原来的位置</span><br><span class="line">    elseif z.right == null</span><br><span class="line">        TRANSPLANT(T,z,z.left)</span><br><span class="line">    //3:z结点左右子树都不为空</span><br><span class="line">    else y = TREE-MINMUM(z.right)//获取z结点的后继结点y</span><br><span class="line">        //3.1: 如果y结点不是z结点的右孩子，则用y的右子树替换y原来的位置，并且设置y结点为原来右子树的父节点</span><br><span class="line">        //说明: 如果y结点为z的后继结点，则y结点肯定不存在左子树</span><br><span class="line">        if y.p != z</span><br><span class="line">            TRANSPLANT(T,y,y.right)</span><br><span class="line">            y.right = z.right</span><br><span class="line">            y.right.p = z.p</span><br><span class="line">        //3.2 用y子树替换掉z子树原来的位置，并设置z结点的左子树为y的左子树</span><br><span class="line">        TRANSPLANT(T,z,y)</span><br><span class="line">        y.left = z.left</span><br><span class="line">        y.left.p = y</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li>算法导论第12章</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="/2019/08/19/TreeMap源码实现分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="stupid_wolf">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="stupid_wolf">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/19/TreeMap源码实现分析/" itemprop="url">TreeMap源码实现分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-19T12:50:59+08:00">
+                2019-08-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Core-Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Core Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Words count in article&#58;</span>
+                
+                <span title="Words count in article">
+                  1.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Reading time &asymp;</span>
+                
+                <span title="Reading time">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><ul>
+<li>基于<a href="/2019/08/20/红黑树/" title="红黑树">红黑树</a><code>NavigableMap接口</code>的实现，map按照自然顺序排序或者按照在构建map时提供的比较器(<code>Comparator</code>)来进行排序</li>
+<li>实现为<code>containsKey</code>,<code>get</code>,<code>put</code>,<code>remove</code>操作提供<code>log(n)</code>算法复杂度的支持</li>
+<li>TODO: 注意，如果要正确实现<code>map</code>接口，维护<code>tree map</code>的顺序，必须保证要跟<code>equals</code>一致。这是因为<code>map接口</code>是根据<code>equals</code>操作定义的，但是<code>sorted tree</code>使用的是<code>compareTo 或者 compare</code>用来比较所有的<code>key</code>.</li>
+<li>非同步的，可以使用<code>SortedMap m = Collections.synchronizedSortedMap(new TreeMap(...));</code>将其装饰为一个支持同步操作的有序集合</li>
+<li>迭代器返回的所有方法(<code>collection view methods</code>)都是<code>fail-fast</code>的，如果<code>map</code>内部结构在返回迭代器后发生变化，在使用该迭代器时将抛出<code>ConcurrentModicationExcetion</code>异常</li>
+</ul>
+<h3 id="常用方法"><a href="#常用方法" class="headerlink" title="常用方法"></a>常用方法</h3><h4 id="put"><a href="#put" class="headerlink" title="put"></a>put</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;</span><br><span class="line">    Entry&lt;K,V&gt; t = root;</span><br><span class="line">    <span class="keyword">if</span> (t == <span class="keyword">null</span>) &#123;</span><br><span class="line">        compare(key, key); <span class="comment">// type (and possibly null) check 这个是做什么?</span></span><br><span class="line"></span><br><span class="line">        root = <span class="keyword">new</span> Entry&lt;&gt;(key, value, <span class="keyword">null</span>);<span class="comment">//如果红黑树为空，新建结点，并设置该结点为红黑树的根节点</span></span><br><span class="line">        size = <span class="number">1</span>;</span><br><span class="line">        modCount++;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> cmp;</span><br><span class="line">    Entry&lt;K,V&gt; parent;</span><br><span class="line">    <span class="comment">// split comparator and comparable paths</span></span><br><span class="line">    Comparator&lt;? <span class="keyword">super</span> K&gt; cpr = comparator;</span><br><span class="line">    <span class="keyword">if</span> (cpr != <span class="keyword">null</span>) &#123;<span class="comment">//如果在构建TreeMap时有传Comparator参数，则使用Comparator的compare方法来比较各个key的大小</span></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            parent = t;</span><br><span class="line">            cmp = cpr.compare(key, t.key);</span><br><span class="line">            <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>)</span><br><span class="line">                t = t.left;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>)</span><br><span class="line">                t = t.right;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> t.setValue(value);<span class="comment">//如果之前已存在该key,则更新对应结点的值并返回旧值</span></span><br><span class="line">        &#125; <span class="keyword">while</span> (t != <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;<span class="comment">//否则使用key自带的compareTo比较方法，需要key实现Comparable接口</span></span><br><span class="line">        <span class="keyword">if</span> (key == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">            Comparable&lt;? <span class="keyword">super</span> K&gt; k = (Comparable&lt;? <span class="keyword">super</span> K&gt;) key;</span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            parent = t;</span><br><span class="line">            cmp = k.compareTo(t.key);</span><br><span class="line">            <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>)</span><br><span class="line">                t = t.left;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>)</span><br><span class="line">                t = t.right;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> t.setValue(value);<span class="comment">//如果之前已存在该key,则更新对应结点的值并返回旧值</span></span><br><span class="line">        &#125; <span class="keyword">while</span> (t != <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    Entry&lt;K,V&gt; e = <span class="keyword">new</span> Entry&lt;&gt;(key, value, parent);</span><br><span class="line">    <span class="comment">// 将新的Mapping添加入红黑树</span></span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>)</span><br><span class="line">        parent.left = e;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        parent.right = e;</span><br><span class="line">    <span class="comment">// 为了维护红黑树相关的性质，在插入新结点后需要进行调整</span></span><br><span class="line">    fixAfterInsertion(e);</span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="get"><a href="#get" class="headerlink" title="get"></a>get</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    Entry&lt;K,V&gt; p = getEntry(key);</span><br><span class="line">    <span class="keyword">return</span> (p==<span class="keyword">null</span> ? <span class="keyword">null</span> : p.value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">final</span> Entry&lt;K,V&gt; <span class="title">getEntry</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Offload comparator-based version for sake of performance</span></span><br><span class="line">    <span class="keyword">if</span> (comparator != <span class="keyword">null</span>)<span class="comment">//如果比较器不为空，则通过比较器的方式获取值</span></span><br><span class="line">        <span class="keyword">return</span> getEntryUsingComparator(key);</span><br><span class="line">    <span class="keyword">if</span> (key == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">        Comparable&lt;? <span class="keyword">super</span> K&gt; k = (Comparable&lt;? <span class="keyword">super</span> K&gt;) key;</span><br><span class="line">    Entry&lt;K,V&gt; p = root;</span><br><span class="line">    <span class="keyword">while</span> (p != <span class="keyword">null</span>) &#123;<span class="comment">//二叉搜索树查询</span></span><br><span class="line">        <span class="keyword">int</span> cmp = k.compareTo(p.key);<span class="comment">//使用Key自带的compateTo方法</span></span><br><span class="line">        <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>)</span><br><span class="line">            p = p.left;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>)</span><br><span class="line">            p = p.right;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> p;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">final</span> Entry&lt;K,V&gt; <span class="title">getEntryUsingComparator</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">            K k = (K) key;</span><br><span class="line">        Comparator&lt;? <span class="keyword">super</span> K&gt; cpr = comparator;</span><br><span class="line">        <span class="keyword">if</span> (cpr != <span class="keyword">null</span>) &#123;</span><br><span class="line">            Entry&lt;K,V&gt; p = root;</span><br><span class="line">            <span class="keyword">while</span> (p != <span class="keyword">null</span>) &#123;<span class="comment">//二叉搜索树的查询</span></span><br><span class="line">                <span class="keyword">int</span> cmp = cpr.compare(k, p.key);</span><br><span class="line">                <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>)</span><br><span class="line">                    p = p.left;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>)</span><br><span class="line">                    p = p.right;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    <span class="keyword">return</span> p;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="remove"><a href="#remove" class="headerlink" title="remove"></a>remove</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> V <span class="title">remove</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    Entry&lt;K,V&gt; p = getEntry(key);<span class="comment">//查询对应的key是否在红黑树上</span></span><br><span class="line">    <span class="keyword">if</span> (p == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    V oldValue = p.value;</span><br><span class="line">    deleteEntry(p);<span class="comment">//删除找到的结点p</span></span><br><span class="line">    <span class="keyword">return</span> oldValue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 跟算法导论中的红黑树删除貌似不太一样.</span></span><br><span class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">deleteEntry</span><span class="params">(Entry&lt;K,V&gt; p)</span> </span>&#123;</span><br><span class="line">    modCount++;</span><br><span class="line">    size--;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If strictly internal, copy successor's element to p and then make p</span></span><br><span class="line">    <span class="comment">// point to successor.</span></span><br><span class="line">    <span class="keyword">if</span> (p.left != <span class="keyword">null</span> &amp;&amp; p.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">        Entry&lt;K,V&gt; s = successor(p);</span><br><span class="line">        p.key = s.key;</span><br><span class="line">        p.value = s.value;</span><br><span class="line">        p = s;</span><br><span class="line">    &#125; <span class="comment">// p has 2 children</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Start fixup at replacement node, if it exists.</span></span><br><span class="line">    Entry&lt;K,V&gt; replacement = (p.left != <span class="keyword">null</span> ? p.left : p.right);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (replacement != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// Link replacement to parent</span></span><br><span class="line">        replacement.parent = p.parent;</span><br><span class="line">        <span class="keyword">if</span> (p.parent == <span class="keyword">null</span>)</span><br><span class="line">            root = replacement;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p == p.parent.left)</span><br><span class="line">            p.parent.left  = replacement;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            p.parent.right = replacement;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Null out links so they are OK to use by fixAfterDeletion.</span></span><br><span class="line">        p.left = p.right = p.parent = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Fix replacement</span></span><br><span class="line">        <span class="keyword">if</span> (p.color == BLACK)</span><br><span class="line">            fixAfterDeletion(replacement);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (p.parent == <span class="keyword">null</span>) &#123; <span class="comment">// return if we are the only node.</span></span><br><span class="line">        root = <span class="keyword">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">//  No children. Use self as phantom replacement and unlink.</span></span><br><span class="line">        <span class="keyword">if</span> (p.color == BLACK)</span><br><span class="line">            fixAfterDeletion(p);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (p.parent != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p == p.parent.left)</span><br><span class="line">                p.parent.left = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (p == p.parent.right)</span><br><span class="line">                p.parent.right = <span class="keyword">null</span>;</span><br><span class="line">            p.parent = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><code>jdk-11.0.2</code></li>
+<li>算法导论第13章</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="/2019/08/17/LinkedHashMap源码实现分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -393,7 +1012,7 @@
       
         
           
-            <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>键值对的Map接口的实现，支持<code>get</code>, <code>put</code>等些基本操作<code>O(1)</code>时间复杂度的支持，允许<code>null</code>的<code>mapping</code>，但与<code>HashMap</code>不同的一点是，其支持按照<code>mapping</code>被添加进来的顺序进行遍历。还有特殊的一点，如果该<code>map</code>是以<code>access-ordered</code>方式构建的，可以用来构建简单的<code>LRU(最近最少使用)</code>的缓存，在满足一定条件时，<code>map</code> 自动淘汰一些过期元素</p>
+            <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>键值对的<code>Map接口</code>的实现，支持<code>get</code>, <code>put</code>等些基本操作<code>O(1)</code>时间复杂度的支持，允许<code>null</code>的<code>mapping</code>，但与<code>HashMap</code>不同的一点是，其支持按照<code>mapping</code>被添加进来的顺序进行遍历。还有特殊的一点，如果该<code>map</code>是以<code>access-ordered</code>方式构建的，可以用来构建简单的<code>LRU(最近最少使用)</code>的缓存，在满足一定条件时，<code>map</code> 自动淘汰一些过期元素</p>
 <h3 id="基本描述"><a href="#基本描述" class="headerlink" title="基本描述"></a>基本描述</h3><ul>
 <li>基于<code>HashMap</code>和<code>双链表</code>并且具有可预知遍历顺序的<code>Map接口</code>实现，遍历顺序与<code>mapping</code>被添加进来时的顺序一致。跟HashMap不同之处在于，它维护一个运行于所有实体中的双链表，该链表定义了遍历的顺序</li>
 <li>需要注意的是，如果重新插入一个<code>key</code>，插入顺序不会受到影响(这里指的应该是<code>accessOrder=false</code>的情景)</li>
@@ -419,7 +1038,7 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将e节点的前序节点的next指针指向e节点的后续节点</span></span><br><span class="line">e.before.next = e.next;</span><br><span class="line"><span class="comment">// 将e节点的后序节点的before指针指向e的前序节点</span></span><br><span class="line">e.next.before = e.before;</span><br><span class="line">e.before = <span class="keyword">null</span>;</span><br><span class="line">e.next = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
 
-<h4 id="linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数"><a href="#linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数" class="headerlink" title="linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数"></a><code>linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)</code>函数</h4><p>将当前节点p添加到双链表的尾部</p>
+<h4 id="linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数"><a href="#linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数" class="headerlink" title="linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数"></a>linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数</h4><p>将当前节点p添加到双链表的尾部</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The head (eldest) of the doubly linked list.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; head;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The tail (youngest) of the doubly linked list.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; tail;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">linkNodeLast</span><span class="params">(LinkedHashMap.Entry&lt;K,V&gt; p)</span> </span>&#123;</span><br><span class="line">    LinkedHashMap.Entry&lt;K,V&gt; last = tail;</span><br><span class="line">    tail = p;</span><br><span class="line">    <span class="comment">// last为空,说明当前双链表暂未有元素,此时让head指向p</span></span><br><span class="line">    <span class="keyword">if</span> (last == <span class="keyword">null</span>)</span><br><span class="line">        head = p;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 设置p节点为双链表的尾节点</span></span><br><span class="line">        p.before = last;</span><br><span class="line">        last.after = p;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst"><a href="#transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst" class="headerlink" title="transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)"></a>transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)</h4><p>在由普通节点(pain node)转树节点(tree node)或者树节点转普通节点后，更新双链表中对应节点的旧节点信息为新的节点信息</p>
@@ -937,7 +1556,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -948,7 +1567,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -959,7 +1578,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -1026,7 +1645,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">3.7k</span>
+    <span title="Site words total count">6.8k</span>
   
 </div>
 
