@@ -86,19 +86,19 @@
 
 
 
-<meta name="description" content="基本介绍满足如下特点的二叉树: 设x为二叉搜索树中的结点。如果y是x左子树中的一个结点，那么y.key &amp;lt;= x.key。如果y是x的右子树中的一个结点，那么y.key &amp;gt;= x.key 基本操作(伪代码，摘自算法导论第12章)中序遍历12345INORDER-TREE-WALK(x)    if x != null        INORDER-TREE-WALK(x.left)">
+<meta name="description" content="主要介绍了二叉搜索树的遍历，查找，最小(大)结点的查找，前驱结点，后继结点，插入新结点，删除结点等操作的实现">
 <meta name="keywords" content="Tree,Binary Search Tree">
 <meta property="og:type" content="article">
 <meta property="og:title" content="二叉搜索树">
 <meta property="og:url" content="/2019/08/20/二叉搜索树/index.html">
 <meta property="og:site_name" content="stupid_wolf">
-<meta property="og:description" content="基本介绍满足如下特点的二叉树: 设x为二叉搜索树中的结点。如果y是x左子树中的一个结点，那么y.key &amp;lt;= x.key。如果y是x的右子树中的一个结点，那么y.key &amp;gt;= x.key 基本操作(伪代码，摘自算法导论第12章)中序遍历12345INORDER-TREE-WALK(x)    if x != null        INORDER-TREE-WALK(x.left)">
+<meta property="og:description" content="主要介绍了二叉搜索树的遍历，查找，最小(大)结点的查找，前驱结点，后继结点，插入新结点，删除结点等操作的实现">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="/2019/08/20/二叉搜索树/tree-delete-img.png">
-<meta property="og:updated_time" content="2019-08-20T07:23:06.542Z">
+<meta property="og:updated_time" content="2019-08-25T07:27:52.131Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="二叉搜索树">
-<meta name="twitter:description" content="基本介绍满足如下特点的二叉树: 设x为二叉搜索树中的结点。如果y是x左子树中的一个结点，那么y.key &amp;lt;= x.key。如果y是x的右子树中的一个结点，那么y.key &amp;gt;= x.key 基本操作(伪代码，摘自算法导论第12章)中序遍历12345INORDER-TREE-WALK(x)    if x != null        INORDER-TREE-WALK(x.left)">
+<meta name="twitter:description" content="主要介绍了二叉搜索树的遍历，查找，最小(大)结点的查找，前驱结点，后继结点，插入新结点，删除结点等操作的实现">
 <meta name="twitter:image" content="/2019/08/20/二叉搜索树/tree-delete-img.png">
 
 
@@ -355,7 +355,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  677
+                  723
                 </span>
               
 
@@ -392,7 +392,10 @@
       
 
       
-        <h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>满足如下特点的二叉树: 设<code>x</code>为二叉搜索树中的结点。如果<code>y</code>是<code>x</code>左子树中的一个结点，那么<code>y.key &lt;= x.key</code>。如果<code>y</code>是<code>x</code>的右子树中的一个结点，那么<code>y.key &gt;= x.key</code></p>
+        <p>主要介绍了二叉搜索树的遍历，查找，最小(大)结点的查找，前驱结点，后继结点，插入新结点，删除结点等操作的实现</p>
+<a id="more"></a>
+
+<h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>满足如下特点的二叉树: 设<code>x</code>为二叉搜索树中的结点。如果<code>y</code>是<code>x</code>左子树中的一个结点，那么<code>y.key &lt;= x.key</code>。如果<code>y</code>是<code>x</code>的右子树中的一个结点，那么<code>y.key &gt;= x.key</code></p>
 <h3 id="基本操作-伪代码，摘自算法导论第12章"><a href="#基本操作-伪代码，摘自算法导论第12章" class="headerlink" title="基本操作(伪代码，摘自算法导论第12章)"></a>基本操作(伪代码，摘自<em>算法导论第12章</em>)</h3><h4 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">INORDER-TREE-WALK(x)</span><br><span class="line">    if x != null</span><br><span class="line">        INORDER-TREE-WALK(x.left)</span><br><span class="line">        print x.key</span><br><span class="line">        INORDER-TREE-WALK(x.right)</span><br></pre></td></tr></table></figure>
 
 <h4 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TREE-SEARCH(x, k)</span><br><span class="line">    if x == null or k == x.key</span><br><span class="line">        return x</span><br><span class="line">    if k &lt; x.key</span><br><span class="line">        return TREE-SEARCH(x.left, k)</span><br><span class="line">    return TREE-SEARCH(x.right, k)</span><br></pre></td></tr></table></figure>
@@ -548,7 +551,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -653,7 +656,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">7.8k</span>
+    <span title="Site words total count">8.6k</span>
   
 </div>
 

@@ -86,20 +86,20 @@
 
 
 
-<meta name="description" content="简介键值对的Map接口的实现，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足一定条件时，map 自动淘汰一些过期元素 基本描述 基于HashMap和双">
+<meta name="description" content="LinkedHashMap是基于HashMap实现的子类，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历(底层使用额外的双链表储存了各个被添加的元素)。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足">
 <meta name="keywords" content="Java Collections,LinkedHashMap,LRU,Doubly-linked List">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LinkedHashMap源码实现分析">
 <meta property="og:url" content="/2019/08/17/LinkedHashMap源码实现分析/index.html">
 <meta property="og:site_name" content="stupid_wolf">
-<meta property="og:description" content="简介键值对的Map接口的实现，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足一定条件时，map 自动淘汰一些过期元素 基本描述 基于HashMap和双">
+<meta property="og:description" content="LinkedHashMap是基于HashMap实现的子类，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历(底层使用额外的双链表储存了各个被添加的元素)。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="/2019/08/17/LinkedHashMap源码实现分析/class-uml.png">
 <meta property="og:image" content="/2019/08/17/LinkedHashMap源码实现分析/inner-ds-img.png">
-<meta property="og:updated_time" content="2019-08-19T04:49:08.242Z">
+<meta property="og:updated_time" content="2019-08-25T07:19:18.014Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LinkedHashMap源码实现分析">
-<meta name="twitter:description" content="简介键值对的Map接口的实现，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足一定条件时，map 自动淘汰一些过期元素 基本描述 基于HashMap和双">
+<meta name="twitter:description" content="LinkedHashMap是基于HashMap实现的子类，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历(底层使用额外的双链表储存了各个被添加的元素)。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足">
 <meta name="twitter:image" content="/2019/08/17/LinkedHashMap源码实现分析/class-uml.png">
 
 
@@ -393,7 +393,9 @@
       
 
       
-        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>键值对的<code>Map接口</code>的实现，支持<code>get</code>, <code>put</code>等些基本操作<code>O(1)</code>时间复杂度的支持，允许<code>null</code>的<code>mapping</code>，但与<code>HashMap</code>不同的一点是，其支持按照<code>mapping</code>被添加进来的顺序进行遍历。还有特殊的一点，如果该<code>map</code>是以<code>access-ordered</code>方式构建的，可以用来构建简单的<code>LRU(最近最少使用)</code>的缓存，在满足一定条件时，<code>map</code> 自动淘汰一些过期元素</p>
+        <p><code>LinkedHashMap</code>是基于<code>HashMap</code>实现的子类，支持<code>get</code>, <code>put</code>等些基本操作<code>O(1)</code>时间复杂度的支持，允许<code>null</code>的<code>mapping</code>，但与<code>HashMap</code>不同的一点是，其支持按照<code>mapping</code>被添加进来的顺序进行遍历(底层使用额外的双链表储存了各个被添加的元素)。还有特殊的一点，如果该<code>map</code>是以<code>access-ordered</code>方式构建的，可以用来构建简单的<code>LRU(最近最少使用)</code>的缓存，在满足一定条件时，<code>map</code> 自动淘汰一些过期元素</p>
+<a id="more"></a>
+
 <h3 id="基本描述"><a href="#基本描述" class="headerlink" title="基本描述"></a>基本描述</h3><ul>
 <li>基于<code>HashMap</code>和<code>双链表</code>并且具有可预知遍历顺序的<code>Map接口</code>实现，遍历顺序与<code>mapping</code>被添加进来时的顺序一致。跟HashMap不同之处在于，它维护一个运行于所有实体中的双链表，该链表定义了遍历的顺序</li>
 <li>需要注意的是，如果重新插入一个<code>key</code>，插入顺序不会受到影响(这里指的应该是<code>accessOrder=false</code>的情景)</li>
@@ -568,7 +570,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -639,7 +641,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本描述"><span class="nav-number">2.</span> <span class="nav-text">基本描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构"><span class="nav-number">3.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内部数据结构"><span class="nav-number">4.</span> <span class="nav-text">内部数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">5.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#双链表节点数据结构"><span class="nav-number">5.1.</span> <span class="nav-text">双链表节点数据结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数"><span class="nav-number">5.2.</span> <span class="nav-text">linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst"><span class="nav-number">5.3.</span> <span class="nav-text">transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeRemoval-Node-lt-K-V-gt-e"><span class="nav-number">5.4.</span> <span class="nav-text">afterNodeRemoval(Node&lt;K,V&gt; e)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeInsertion-boolean-evict"><span class="nav-number">5.5.</span> <span class="nav-text">afterNodeInsertion(boolean evict)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeAccess-Node-lt-K-V-gt-e"><span class="nav-number">5.6.</span> <span class="nav-text">afterNodeAccess(Node&lt;K,V&gt; e)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用LinkedHashMap实现简单的LRU缓存"><span class="nav-number">6.</span> <span class="nav-text">利用LinkedHashMap实现简单的LRU缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本描述"><span class="nav-number">1.</span> <span class="nav-text">基本描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构"><span class="nav-number">2.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内部数据结构"><span class="nav-number">3.</span> <span class="nav-text">内部数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">4.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#双链表节点数据结构"><span class="nav-number">4.1.</span> <span class="nav-text">双链表节点数据结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#linkNodeLast-LinkedHashMap-Entry-lt-K-V-gt-p-函数"><span class="nav-number">4.2.</span> <span class="nav-text">linkNodeLast(LinkedHashMap.Entry&lt;K,V&gt; p)函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#transferLinks-LinkedHashMap-Entry-lt-K-V-gt-src-LinkedHashMap-Entry-lt-K-V-gt-dst"><span class="nav-number">4.3.</span> <span class="nav-text">transferLinks(LinkedHashMap.Entry&lt;K,V&gt; src, LinkedHashMap.Entry&lt;K,V&gt; dst)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeRemoval-Node-lt-K-V-gt-e"><span class="nav-number">4.4.</span> <span class="nav-text">afterNodeRemoval(Node&lt;K,V&gt; e)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeInsertion-boolean-evict"><span class="nav-number">4.5.</span> <span class="nav-text">afterNodeInsertion(boolean evict)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeAccess-Node-lt-K-V-gt-e"><span class="nav-number">4.6.</span> <span class="nav-text">afterNodeAccess(Node&lt;K,V&gt; e)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用LinkedHashMap实现简单的LRU缓存"><span class="nav-number">5.</span> <span class="nav-text">利用LinkedHashMap实现简单的LRU缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
@@ -673,7 +675,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">7.8k</span>
+    <span title="Site words total count">8.6k</span>
   
 </div>
 

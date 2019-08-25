@@ -86,21 +86,21 @@
 
 
 
-<meta name="description" content="基本介绍一般的二叉搜索树search,insert,remove等操作的时间复杂度为O(h)，h为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为O(n) 红黑树的性质红黑树是一棵二叉搜索树，它在每个结点上增加了一个存储位来表示结点的颜色，可以是RED或者BLACK。通过对任何一条从根结点到叶子结点的简单路">
+<meta name="description" content="主要介绍了红黑树具有的5点性质，以及在进行插入，删除操作后，如何通过旋转和变色的操作来维护红黑树相关的性质">
 <meta name="keywords" content="Red-Black Tree,Tree,Binary Search Tree">
 <meta property="og:type" content="article">
 <meta property="og:title" content="红黑树">
 <meta property="og:url" content="/2019/08/20/红黑树/index.html">
 <meta property="og:site_name" content="stupid_wolf">
-<meta property="og:description" content="基本介绍一般的二叉搜索树search,insert,remove等操作的时间复杂度为O(h)，h为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为O(n) 红黑树的性质红黑树是一棵二叉搜索树，它在每个结点上增加了一个存储位来表示结点的颜色，可以是RED或者BLACK。通过对任何一条从根结点到叶子结点的简单路">
+<meta property="og:description" content="主要介绍了红黑树具有的5点性质，以及在进行插入，删除操作后，如何通过旋转和变色的操作来维护红黑树相关的性质">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="/2019/08/20/红黑树/tree-rotate.png">
 <meta property="og:image" content="/2019/08/20/红黑树/rb-tree-insert-fixup-img.png">
 <meta property="og:image" content="/2019/08/20/红黑树/rb-tree-delete-fixup-img.png">
-<meta property="og:updated_time" content="2019-08-21T01:11:45.814Z">
+<meta property="og:updated_time" content="2019-08-25T07:30:41.736Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="红黑树">
-<meta name="twitter:description" content="基本介绍一般的二叉搜索树search,insert,remove等操作的时间复杂度为O(h)，h为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为O(n) 红黑树的性质红黑树是一棵二叉搜索树，它在每个结点上增加了一个存储位来表示结点的颜色，可以是RED或者BLACK。通过对任何一条从根结点到叶子结点的简单路">
+<meta name="twitter:description" content="主要介绍了红黑树具有的5点性质，以及在进行插入，删除操作后，如何通过旋转和变色的操作来维护红黑树相关的性质">
 <meta name="twitter:image" content="/2019/08/20/红黑树/tree-rotate.png">
 
 
@@ -394,7 +394,10 @@
       
 
       
-        <h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>一般的<a href="/2019/08/20/二叉搜索树/" title="二叉搜索树">二叉搜索树</a><code>search</code>,<code>insert</code>,<code>remove</code>等操作的时间复杂度为<code>O(h)</code>，<code>h</code>为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为<code>O(n)</code></p>
+        <p>主要介绍了红黑树具有的5点性质，以及在进行插入，删除操作后，如何通过旋转和变色的操作来维护红黑树相关的性质</p>
+<a id="more"></a>
+
+<h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>一般的<a href="/2019/08/20/二叉搜索树/" title="二叉搜索树">二叉搜索树</a><code>search</code>,<code>insert</code>,<code>remove</code>等操作的时间复杂度为<code>O(h)</code>，<code>h</code>为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为<code>O(n)</code></p>
 <h3 id="红黑树的性质"><a href="#红黑树的性质" class="headerlink" title="红黑树的性质"></a>红黑树的性质</h3><p>红黑树是一棵二叉搜索树，它在每个结点上增加了一个存储位来表示结点的颜色，可以是<code>RED</code>或者<code>BLACK</code>。通过对任何一条从根结点到叶子结点的简单路径上各个结点的颜色进行约束，红黑树确保没有一条路径会比其它路径长出2倍，因而是近似于平衡的。</p>
 <ol>
 <li>每个结点或是红色或是黑色</li>
@@ -573,7 +576,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -678,7 +681,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">7.8k</span>
+    <span title="Site words total count">8.6k</span>
   
 </div>
 
