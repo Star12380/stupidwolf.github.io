@@ -90,18 +90,18 @@
 <meta name="keywords" content="Red-Black Tree,Tree,Binary Search Tree">
 <meta property="og:type" content="article">
 <meta property="og:title" content="红黑树">
-<meta property="og:url" content="/2019/08/20/红黑树/index.html">
+<meta property="og:url" content="/2019/08/20/learn-about-red-black-tree/index.html">
 <meta property="og:site_name" content="stupid_wolf">
 <meta property="og:description" content="主要介绍了红黑树具有的5点性质，以及在进行插入，删除操作后，如何通过旋转和变色的操作来维护红黑树相关的性质">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="/2019/08/20/红黑树/tree-rotate.png">
-<meta property="og:image" content="/2019/08/20/红黑树/rb-tree-insert-fixup-img.png">
-<meta property="og:image" content="/2019/08/20/红黑树/rb-tree-delete-fixup-img.png">
-<meta property="og:updated_time" content="2019-08-25T07:30:41.736Z">
+<meta property="og:image" content="/2019/08/20/learn-about-red-black-tree/tree-rotate.png">
+<meta property="og:image" content="/2019/08/20/learn-about-red-black-tree/rb-tree-insert-fixup-img.png">
+<meta property="og:image" content="/2019/08/20/learn-about-red-black-tree/rb-tree-delete-fixup-img.png">
+<meta property="og:updated_time" content="2019-08-31T04:51:22.548Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="红黑树">
 <meta name="twitter:description" content="主要介绍了红黑树具有的5点性质，以及在进行插入，删除操作后，如何通过旋转和变色的操作来维护红黑树相关的性质">
-<meta name="twitter:image" content="/2019/08/20/红黑树/tree-rotate.png">
+<meta name="twitter:image" content="/2019/08/20/learn-about-red-black-tree/tree-rotate.png">
 
 
 
@@ -131,7 +131,7 @@
 
 
 
-  <link rel="canonical" href="/2019/08/20/红黑树/">
+  <link rel="canonical" href="/2019/08/20/learn-about-red-black-tree/">
 
 
 
@@ -274,7 +274,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="/2019/08/20/红黑树/">
+    <link itemprop="mainEntityOfPage" href="/2019/08/20/learn-about-red-black-tree/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="stupid_wolf">
@@ -397,7 +397,7 @@
         <p>主要介绍了红黑树具有的5点性质，以及在进行插入，删除操作后，如何通过旋转和变色的操作来维护红黑树相关的性质</p>
 <a id="more"></a>
 
-<h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>一般的<a href="/2019/08/20/二叉搜索树/" title="二叉搜索树">二叉搜索树</a><code>search</code>,<code>insert</code>,<code>remove</code>等操作的时间复杂度为<code>O(h)</code>，<code>h</code>为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为<code>O(n)</code></p>
+<h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>一般的<a href="/2019/08/20/learn-about-binary-search-tree/" title="二叉搜索树">二叉搜索树</a><code>search</code>,<code>insert</code>,<code>remove</code>等操作的时间复杂度为<code>O(h)</code>，<code>h</code>为树的高度，如果树的高度比较大时，这些操作执行得可能会比较慢。红黑树是许多”平衡”搜索树的一种，可以保证在最坏情况下动态集合操作的时间复杂度为<code>O(n)</code></p>
 <h3 id="红黑树的性质"><a href="#红黑树的性质" class="headerlink" title="红黑树的性质"></a>红黑树的性质</h3><p>红黑树是一棵二叉搜索树，它在每个结点上增加了一个存储位来表示结点的颜色，可以是<code>RED</code>或者<code>BLACK</code>。通过对任何一条从根结点到叶子结点的简单路径上各个结点的颜色进行约束，红黑树确保没有一条路径会比其它路径长出2倍，因而是近似于平衡的。</p>
 <ol>
 <li>每个结点或是红色或是黑色</li>
@@ -407,7 +407,7 @@
 <li>对每个结点，从该结点到其所有后代叶子结点的简单路径上，均包含相同数目的黑色结点</li>
 </ol>
 <h3 id="常见操作"><a href="#常见操作" class="headerlink" title="常见操作"></a>常见操作</h3><h4 id="旋转"><a href="#旋转" class="headerlink" title="旋转"></a>旋转</h4><p>旋转: 一种能够保持二叉搜索树性质的局部操作，分别有左旋转，右旋转<br><code>注(仅是个人理解)</code>: 左旋转，能够让左子树的深度+1;右旋转，能够让右子树深度+1，从而达到在不改变搜索树性质的同时，适当调整树的深度，避免搜索树出现链化</p>
-<p><img src="/2019/08/20/红黑树/tree-rotate.png" alt="tree-rotate-img"></p>
+<p><img src="/2019/08/20/learn-about-red-black-tree/tree-rotate.png" alt="tree-rotate-img"></p>
 <p>伪代码:</p>
 <ul>
 <li>左旋转</li>
@@ -428,7 +428,7 @@
 <li>case 2: z结点的uncle结点颜色为黑色，并且z为其父结点的右孩子，此时通过左旋转z.p结点，将问题转换为case 3</li>
 <li>case 3: z结点的uncle结点颜色为黑色，并且z为其父接待你的左孩子，设置z.p.color = BLACK，并对z.p.p结点进行右旋转</li>
 </ul>
-<p><img src="/2019/08/20/红黑树/rb-tree-insert-fixup-img.png" alt="rb-tree-insert-fixup-img"></p>
+<p><img src="/2019/08/20/learn-about-red-black-tree/rb-tree-insert-fixup-img.png" alt="rb-tree-insert-fixup-img"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">RB-INSERT-FIXUP(T,z):</span><br><span class="line">while z.p.color == RED</span><br><span class="line">    if z.p == z.p.p.left</span><br><span class="line">        y = z.p.p.right//uncle node</span><br><span class="line">        if y.color == RED//case 1</span><br><span class="line">            z.p.color = BLACK</span><br><span class="line">            y.color = BLACK</span><br><span class="line">            z.p.p.color = RED</span><br><span class="line">            z = z.p.p</span><br><span class="line">        elseif z == z.p.right//case 2</span><br><span class="line">            z = z.p//通过左旋转，将其转换为case 3</span><br><span class="line">            LEFT-ROTATE(T,z)</span><br><span class="line">        z.p.color = BLACK// case 3</span><br><span class="line">        z.p.p.color = RED</span><br><span class="line">        RIGHT-ROTATE(T,z.p.p)</span><br><span class="line">    else(same as then clause with &quot;right&quot; and left exchanged)</span><br><span class="line">T.root.color = BLACK</span><br></pre></td></tr></table></figure>
 
 <h4 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h4><p>-<code>RB-TRANSPLANT</code><br>使用v结点替换红黑树T中u结点</p>
@@ -445,7 +445,7 @@
 <ul>
 <li><code>RB-DELETE-FIXUP</code><br>修正删除节点后的红黑树(脑壳疼 ┭┮﹏┭┮)</li>
 </ul>
-<p><img src="/2019/08/20/红黑树/rb-tree-delete-fixup-img.png" alt="rb-tree-delete-fixup-img"></p>
+<p><img src="/2019/08/20/learn-about-red-black-tree/rb-tree-delete-fixup-img.png" alt="rb-tree-delete-fixup-img"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">RB-DELETE-FIXUP(T,x):</span><br><span class="line">while x != null and x.color == BLACK</span><br><span class="line">    if x == x.p.left</span><br><span class="line">        w = x.p.right</span><br><span class="line">        if w.color == RED//case 1</span><br><span class="line">            w.color = BLACK</span><br><span class="line">            x.p.color == RED</span><br><span class="line">            LEFT-ROTATE(T,x.p)</span><br><span class="line">            w = x.p.right</span><br><span class="line">        if w.left.color == BLACK and w.right.color == BLACK // case 2</span><br><span class="line">            w.color = RED</span><br><span class="line">            x = x.p</span><br><span class="line">        elseif w.right.color == BLACK // case 3</span><br><span class="line">            w.left.color = BLACK</span><br><span class="line">            w.color = RED</span><br><span class="line">            RIGHT-ROTATE(T,w)</span><br><span class="line">            w = x.p.right</span><br><span class="line">        w.color = x.p.color//case 4</span><br><span class="line">        x.p.color = BLACK</span><br><span class="line">        w.right.color = BLACK</span><br><span class="line">        LEFT-ROTATE(T,x.p)</span><br><span class="line">        x = T.root</span><br><span class="line">    else (same as then clause with &quot;right&quot; and &quot;left&quot; exchanged)</span><br><span class="line">x.color = BLACK</span><br></pre></td></tr></table></figure>
 
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>关于红黑树在插入删除元素之后的调整(特别是删除后的调整操作)，暂时理解得不是太好，后面需要再继续学习掌握</p>
@@ -486,7 +486,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/20/二叉搜索树/" rel="next" title="二叉搜索树">
+              <a href="/2019/08/20/learn-about-binary-search-tree/" rel="next" title="二叉搜索树">
                 <i class="fa fa-chevron-left"></i> 二叉搜索树
               </a>
             
@@ -496,7 +496,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/21/vim常用命令/" rel="prev" title="vim常用命令">
+              <a href="/2019/08/21/learn-about-vim/" rel="prev" title="vim常用命令">
                 vim常用命令 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -526,6 +526,9 @@
 
           
 
+  
+    <div id="gitalk-container">
+    </div>
   
 
 
@@ -846,6 +849,21 @@
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '9b89370dc224f8ec86cd',
+          clientSecret: '1f0bc001633f5ef77b3adbd91796fd38dc4c7684',
+          repo: 'stupidwolf.github.io',
+          owner: 'stupidwolf',
+          admin: ['stupidwolf'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
 
   

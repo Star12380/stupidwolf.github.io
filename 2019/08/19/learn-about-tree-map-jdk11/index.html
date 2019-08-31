@@ -90,11 +90,11 @@
 <meta name="keywords" content="Java Collections,TreeMap,Red-Black Tree">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TreeMap源码实现分析">
-<meta property="og:url" content="/2019/08/19/TreeMap源码实现分析/index.html">
+<meta property="og:url" content="/2019/08/19/learn-about-tree-map-jdk11/index.html">
 <meta property="og:site_name" content="stupid_wolf">
 <meta property="og:description" content="有序的哈希表，允许被插入的元素按照自然顺序或者特殊指定的比较器的顺序进行排序，底层基于红黑树的数据结构实现，支持O(log n)时间复杂度进行get,put,remove等些操作">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-08-25T07:24:42.697Z">
+<meta property="og:updated_time" content="2019-08-31T04:48:42.196Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TreeMap源码实现分析">
 <meta name="twitter:description" content="有序的哈希表，允许被插入的元素按照自然顺序或者特殊指定的比较器的顺序进行排序，底层基于红黑树的数据结构实现，支持O(log n)时间复杂度进行get,put,remove等些操作">
@@ -127,7 +127,7 @@
 
 
 
-  <link rel="canonical" href="/2019/08/19/TreeMap源码实现分析/">
+  <link rel="canonical" href="/2019/08/19/learn-about-tree-map-jdk11/">
 
 
 
@@ -270,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="/2019/08/19/TreeMap源码实现分析/">
+    <link itemprop="mainEntityOfPage" href="/2019/08/19/learn-about-tree-map-jdk11/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="stupid_wolf">
@@ -394,7 +394,7 @@
 <a id="more"></a>
 
 <h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><ul>
-<li>基于<a href="/2019/08/20/红黑树/" title="红黑树">红黑树</a><code>NavigableMap接口</code>的实现，map按照自然顺序排序或者按照在构建map时提供的比较器(<code>Comparator</code>)来进行排序</li>
+<li>基于<a href="/2019/08/20/learn-about-red-black-tree/" title="红黑树">红黑树</a><code>NavigableMap接口</code>的实现，map按照自然顺序排序或者按照在构建map时提供的比较器(<code>Comparator</code>)来进行排序</li>
 <li>实现为<code>containsKey</code>,<code>get</code>,<code>put</code>,<code>remove</code>操作提供<code>log(n)</code>算法复杂度的支持</li>
 <li>注意，如果要正确实现<code>map</code>接口，维护<code>tree map</code>的顺序，必须保证要跟<code>equals</code>一致。这是因为<code>map接口</code>是根据<code>equals</code>操作定义的，但是<code>sorted tree</code>使用的是<code>compareTo 或者 compare</code>用来比较所有的<code>key</code>.</li>
 <li>非同步的，可以使用<code>SortedMap m = Collections.synchronizedSortedMap(new TreeMap(...));</code>将其装饰为一个支持同步操作的有序集合</li>
@@ -444,7 +444,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/17/LinkedHashMap源码实现分析/" rel="next" title="LinkedHashMap源码实现分析">
+              <a href="/2019/08/17/learn-about-linked-hash-map-jdk11/" rel="next" title="LinkedHashMap源码实现分析">
                 <i class="fa fa-chevron-left"></i> LinkedHashMap源码实现分析
               </a>
             
@@ -454,7 +454,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/20/二叉搜索树/" rel="prev" title="二叉搜索树">
+              <a href="/2019/08/20/learn-about-binary-search-tree/" rel="prev" title="二叉搜索树">
                 二叉搜索树 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -484,6 +484,9 @@
 
           
 
+  
+    <div id="gitalk-container">
+    </div>
   
 
 
@@ -804,6 +807,21 @@
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '9b89370dc224f8ec86cd',
+          clientSecret: '1f0bc001633f5ef77b3adbd91796fd38dc4c7684',
+          repo: 'stupidwolf.github.io',
+          owner: 'stupidwolf',
+          admin: ['stupidwolf'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
 
   

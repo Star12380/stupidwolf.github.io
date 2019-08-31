@@ -90,17 +90,17 @@
 <meta name="keywords" content="Java Collections,LinkedHashMap,LRU,Doubly-linked List">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LinkedHashMap源码实现分析">
-<meta property="og:url" content="/2019/08/17/LinkedHashMap源码实现分析/index.html">
+<meta property="og:url" content="/2019/08/17/learn-about-linked-hash-map-jdk11/index.html">
 <meta property="og:site_name" content="stupid_wolf">
 <meta property="og:description" content="LinkedHashMap是基于HashMap实现的子类，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历(底层使用额外的双链表储存了各个被添加的元素)。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="/2019/08/17/LinkedHashMap源码实现分析/class-uml.png">
-<meta property="og:image" content="/2019/08/17/LinkedHashMap源码实现分析/inner-ds-img.png">
-<meta property="og:updated_time" content="2019-08-25T07:19:18.014Z">
+<meta property="og:image" content="/2019/08/17/learn-about-linked-hash-map-jdk11/class-uml.png">
+<meta property="og:image" content="/2019/08/17/learn-about-linked-hash-map-jdk11/inner-ds-img.png">
+<meta property="og:updated_time" content="2019-08-31T04:54:17.563Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LinkedHashMap源码实现分析">
 <meta name="twitter:description" content="LinkedHashMap是基于HashMap实现的子类，支持get, put等些基本操作O(1)时间复杂度的支持，允许null的mapping，但与HashMap不同的一点是，其支持按照mapping被添加进来的顺序进行遍历(底层使用额外的双链表储存了各个被添加的元素)。还有特殊的一点，如果该map是以access-ordered方式构建的，可以用来构建简单的LRU(最近最少使用)的缓存，在满足">
-<meta name="twitter:image" content="/2019/08/17/LinkedHashMap源码实现分析/class-uml.png">
+<meta name="twitter:image" content="/2019/08/17/learn-about-linked-hash-map-jdk11/class-uml.png">
 
 
 
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="/2019/08/17/LinkedHashMap源码实现分析/">
+  <link rel="canonical" href="/2019/08/17/learn-about-linked-hash-map-jdk11/">
 
 
 
@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="/2019/08/17/LinkedHashMap源码实现分析/">
+    <link itemprop="mainEntityOfPage" href="/2019/08/17/learn-about-linked-hash-map-jdk11/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="stupid_wolf">
@@ -404,12 +404,12 @@
 <li>非同步，可使用装饰模式<code>Map m = Collections.synchronizedMap(new LinkedHashMap(...))</code>将其转换为同步的<code>map</code></li>
 <li>在迭代遍历Map时，如果map内部结构发生修改，则会引起<code>fail-fast</code>，抛出<code>ConcurrentModificationException</code>异常。特别的一点，具有访问顺序(<code>access-ordered</code>)要求的map，仅仅是简单的查询方法例如: <code>get函数</code>也会引起内部结构的变化</li>
 </ul>
-<h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="/2019/08/17/LinkedHashMap源码实现分析/class-uml.png" alt="class-uml-img"></p>
+<h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="/2019/08/17/learn-about-linked-hash-map-jdk11/class-uml.png" alt="class-uml-img"></p>
 <h3 id="内部数据结构"><a href="#内部数据结构" class="headerlink" title="内部数据结构"></a>内部数据结构</h3><p>依次插入如下数据，假设key: “Math”, “English”经过hash函数处理后被映射到下标1上,Key: “Chinese”映射在下标4上</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LinkedHashMap&lt;String, String&gt; map = <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</span><br><span class="line">map.put(<span class="string">"Math"</span>, <span class="string">"90"</span>);</span><br><span class="line">map.put(<span class="string">"Chinese"</span>, <span class="string">"98"</span>);</span><br><span class="line">map.put(<span class="string">"English"</span>, <span class="string">"88"</span>);</span><br></pre></td></tr></table></figure>
 
 <p>在LinkedHashMap内部，里面桶以及双链表的结构如下图:</p>
-<p><img src="/2019/08/17/LinkedHashMap源码实现分析/inner-ds-img.png" alt></p>
+<p><img src="/2019/08/17/learn-about-linked-hash-map-jdk11/inner-ds-img.png" alt></p>
 <p>遍历map时，将直接遍历双链表，顺序与被插入的顺序一致:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;Math&quot;=&quot;90&quot;, &quot;Chinese&quot;=&quot;98&quot;, &quot;English&quot;=&quot;88&quot;&#125;</span><br></pre></td></tr></table></figure>
 
@@ -480,7 +480,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/17/HashMap源码原理及实现/" rel="next" title="HashMap源码原理及实现">
+              <a href="/2019/08/17/learn-about-hash-map-jdk11/" rel="next" title="HashMap源码原理及实现">
                 <i class="fa fa-chevron-left"></i> HashMap源码原理及实现
               </a>
             
@@ -490,7 +490,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/19/TreeMap源码实现分析/" rel="prev" title="TreeMap源码实现分析">
+              <a href="/2019/08/19/learn-about-tree-map-jdk11/" rel="prev" title="TreeMap源码实现分析">
                 TreeMap源码实现分析 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -520,6 +520,9 @@
 
           
 
+  
+    <div id="gitalk-container">
+    </div>
   
 
 
@@ -840,6 +843,21 @@
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '9b89370dc224f8ec86cd',
+          clientSecret: '1f0bc001633f5ef77b3adbd91796fd38dc4c7684',
+          repo: 'stupidwolf.github.io',
+          owner: 'stupidwolf',
+          admin: ['stupidwolf'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
 
   
