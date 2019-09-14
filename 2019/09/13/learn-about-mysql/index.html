@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-bounce.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="MySql,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近在面试时遇到了一些数据库相关的问题，补下一些数据库相关的一些基本知识">
+<meta name="keywords" content="MySql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql 学习笔记">
+<meta property="og:url" content="/2019/09/13/learn-about-mysql/index.html">
+<meta property="og:site_name" content="stupid_wolf">
+<meta property="og:description" content="最近在面试时遇到了一些数据库相关的问题，补下一些数据库相关的一些基本知识">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="/2019/09/13/learn-about-mysql/clustered-index-b-tree-img.png">
+<meta property="og:image" content="/2019/09/13/learn-about-mysql/mysql-sql-exec-flow.png">
+<meta property="og:image" content="/2019/09/13/learn-about-mysql/undo-log-img.jpg">
+<meta property="og:updated_time" content="2019-09-14T15:35:47.265Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql 学习笔记">
+<meta name="twitter:description" content="最近在面试时遇到了一些数据库相关的问题，补下一些数据库相关的一些基本知识">
+<meta name="twitter:image" content="/2019/09/13/learn-about-mysql/clustered-index-b-tree-img.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="/2019/09/13/learn-about-mysql/">
+
+
+
+
+
+  <title>mysql 学习笔记 | stupid_wolf</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">stupid_wolf</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="/2019/09/13/learn-about-mysql/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="stupid_wolf">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="stupid_wolf">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mysql 学习笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-13T13:16:12+08:00">
+                2019-09-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Database/" itemprop="url" rel="index">
+                    <span itemprop="name">Database</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Words count in article&#58;</span>
+                
+                <span title="Words count in article">
+                  5.7k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Reading time &asymp;</span>
+                
+                <span title="Reading time">
+                  21
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在面试时遇到了一些数据库相关的问题，补下一些数据库相关的一些基本知识</p>
+<a id="more"></a>
+
+<h3 id="索引的本质"><a href="#索引的本质" class="headerlink" title="索引的本质"></a>索引的本质</h3><h4 id="索引的疑问"><a href="#索引的疑问" class="headerlink" title="索引的疑问"></a>索引的疑问</h4><ul>
+<li>为什么要给表加上主键？</li>
+<li>为什么加索引后会使查询变快？</li>
+<li>为什么加索引后会使写入、修改、删除变慢？</li>
+<li>什么情况下要同时在两个字段上建索引？</li>
+</ul>
+<h4 id="索引的本质-1"><a href="#索引的本质-1" class="headerlink" title="索引的本质"></a>索引的本质</h4><p>索引本质上是一棵平衡树（b tree或者b+ tree）。当然， 有的数据库也使用哈希桶作用索引的数据结构 ， 然而， 主流的RDBMS都是把平衡树当做数据表默认的索引数据结构的。</p>
+<p>我们平时建表时都会为表添加主键。一个拥有主键的<code>表</code>的实质结构如下:<br><img src="/2019/09/13/learn-about-mysql/clustered-index-b-tree-img.png" alt="clustered-index-b-tree-img"></p>
+<h3 id="B-树的特点"><a href="#B-树的特点" class="headerlink" title="B+树的特点"></a>B+树的特点</h3><ul>
+<li>InnoDB使用的是B+Tree</li>
+<li>B+Tree：每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。</li>
+<li>B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，很适合查找范围数据。</li>
+<li>B-Tree可以对&lt;，&lt;=，=，&gt;，&gt;=，BETWEEN，IN，以及不以通配符开始的LIKE使用索引</li>
+</ul>
+<h3 id="MySQL–SQL语句执行流程"><a href="#MySQL–SQL语句执行流程" class="headerlink" title="MySQL–SQL语句执行流程"></a>MySQL–SQL语句执行流程</h3><p><img src="/2019/09/13/learn-about-mysql/mysql-sql-exec-flow.png" alt="mysql-sql-exec-flow"></p>
+<h3 id="Oracle–SQL语句执行流程"><a href="#Oracle–SQL语句执行流程" class="headerlink" title="Oracle–SQL语句执行流程"></a>Oracle–SQL语句执行流程</h3><ul>
+<li><p>语法检查，例如SQL的拼写</p>
+</li>
+<li><p>语义检查，例如sql中的对象是否存在及相关的权限</p>
+</li>
+<li><p>sql解析，对sql进行语法解析，生成解析树及执行计划</p>
+<ul>
+<li>硬解析 包括语法和语义分析，查看共享池是否有解析好的结果，然后选择执行计划和生成执行计划，执行sql</li>
+<li>软解析，如果在共享池中有解析好的结果，直接执行sql</li>
+</ul>
+</li>
+</ul>
+<p><code>说明</code>：创建解析树、生成执行计划对于sql的执行来说是开销昂贵的动作，所以，应当极力避免硬解析，尽量使用软解析。这就是在很多项目中，倡导开发设计人员对功能相同的代码要努力保持代码的一致性，以及要在程序中多使用绑定变量的原因。</p>
+<ul>
+<li>执行sql</li>
+</ul>
+<h4 id="硬解析"><a href="#硬解析" class="headerlink" title="硬解析"></a>硬解析</h4><ul>
+<li>对SQL语句进行语法检查，看是否有语法错误。比如select from where 等的拼写错误，如果存在语法错误，则退出解析过程</li>
+<li>通过数据字典(row cache)，检查SQL语句中涉及的对象和列是否存在。如果不存在，则退出解析过程</li>
+<li>检查SQL语句的用户是否对涉及到的对象是否有权限。如果没有则退出解析</li>
+<li>通过优化器创建一个最优的执行计划。这个过程会根据数据字典中的对象的统计信息，来计算多个执行计划的cost，从而得到一个最优的执行计划。这一步涉及到大量的数据运算，从而会消耗大量的CPU资源；(library cache最主要的目的就是通过软解析来减少这个步骤)</li>
+<li>将该游标所产生的执行计划，SQL文本等装载进library cache中的heap中</li>
+</ul>
+<h4 id="软解析"><a href="#软解析" class="headerlink" title="软解析"></a>软解析</h4><ul>
+<li>所谓软解析，就是因为相同文本的SQL语句存在于library cache中，所以本次SQL语句的解析就可以去掉硬解析中的一个或多个步骤。从而节省大量的资源的耗费</li>
+</ul>
+<h3 id="MySQL-expalin"><a href="#MySQL-expalin" class="headerlink" title="MySQL expalin"></a>MySQL expalin</h3><h4 id="表结构如下："><a href="#表结构如下：" class="headerlink" title="表结构如下："></a>表结构如下：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE `user_info` (</span><br><span class="line">  `id`   BIGINT(20)  NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `name` VARCHAR(50) NOT NULL DEFAULT &apos;&apos;,</span><br><span class="line">  `age`  INT(11)              DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  KEY `name_index` (`name`)</span><br><span class="line">)</span><br><span class="line">  ENGINE = InnoDB</span><br><span class="line">  DEFAULT CHARSET = utf8;</span><br><span class="line"></span><br><span class="line">CREATE TABLE `order_info` (</span><br><span class="line">  `id`           BIGINT(20)  NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `user_id`      BIGINT(20)           DEFAULT NULL,</span><br><span class="line">  `product_name` VARCHAR(50) NOT NULL DEFAULT &apos;&apos;,</span><br><span class="line">  `productor`    VARCHAR(30)          DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  KEY `user_product_detail_index` (`user_id`, `product_name`, `productor`)</span><br><span class="line">)</span><br><span class="line">  ENGINE = InnoDB</span><br><span class="line">  DEFAULT CHARSET = utf8;</span><br></pre></td></tr></table></figure>
+
+<h4 id="explain命令使用"><a href="#explain命令使用" class="headerlink" title="explain命令使用"></a>explain命令使用</h4><ul>
+<li>使用样例</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from user_info where id = 2\G</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: user_info</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: const</span><br><span class="line">possible_keys: PRIMARY</span><br><span class="line">          key: PRIMARY</span><br><span class="line">      key_len: 8</span><br><span class="line">          ref: const</span><br><span class="line">         rows: 1</span><br><span class="line">     filtered: 100.00</span><br><span class="line">        Extra: NULL</span><br><span class="line">1 row in set, 1 warning (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>各个字段的含义</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">id: SELECT 查询的标识符. 每个 SELECT 都会自动分配一个唯一的标识符.</span><br><span class="line">select_type: SELECT 查询的类型.</span><br><span class="line">table: 查询的是哪个表</span><br><span class="line">partitions: 匹配的分区</span><br><span class="line">type: join 类型</span><br><span class="line">possible_keys: 此次查询中可能选用的索引</span><br><span class="line">key: 此次查询中确切使用到的索引.</span><br><span class="line">ref: 哪个字段或常数与 key 一起被使用</span><br><span class="line">rows: 显示此查询一共扫描了多少行. 这个是一个估计值.</span><br><span class="line">filtered: 表示此查询条件所过滤的数据的百分比</span><br><span class="line">extra: 额外的信息</span><br></pre></td></tr></table></figure>
+
+<h4 id="select-type的取值"><a href="#select-type的取值" class="headerlink" title="select_type的取值"></a>select_type的取值</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SIMPLE: 表示此查询不包含 UNION 查询或子查询</span><br><span class="line">PRIMARY: 表示此查询是最外层的查询</span><br><span class="line">UNION: 表示此查询是 UNION 的第二或随后的查询</span><br><span class="line">DEPENDENT UNION: UNION 中的第二个或后面的查询语句, 取决于外面的查询</span><br><span class="line">UNION RESULT: UNION 的结果</span><br><span class="line">SUBQUERY: 子查询中的第一个 SELECT</span><br><span class="line">DEPENDENT SUBQUERY: 子查询中的第一个 SELECT, 取决于外面的查询. 即子查询依赖于外层查询的结果</span><br></pre></td></tr></table></figure>
+
+<h4 id="type-常用类型"><a href="#type-常用类型" class="headerlink" title="type 常用类型"></a>type 常用类型</h4><ul>
+<li><p>system<br>表中只有一条数据. 这个类型是特殊的 const 类型.</p>
+</li>
+<li><p>const<br>针对主键或唯一索引的等值查询扫描, 最多只返回一行数据. const 查询速度非常快, 因为它仅仅读取一次即可</p>
+</li>
+<li><p>eq_ref<br>此类型通常出现在多表的 join 查询, 表示对于前表的每一个结果, 都只能匹配到后表的一行结果. 并且查询的比较操作通常是 =, 查询效率较高. 例如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; EXPLAIN SELECT * FROM user_info, order_info WHERE user_info.id = order_info.user_id\G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: order_info</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: index</span><br><span class="line">possible_keys: user_product_detail_index</span><br><span class="line">          key: user_product_detail_index</span><br><span class="line">      key_len: 254</span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: 9</span><br><span class="line">     filtered: 100.00</span><br><span class="line">        Extra: Using where; Using index</span><br><span class="line">*************************** 2. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: user_info</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: eq_ref</span><br><span class="line">possible_keys: PRIMARY</span><br><span class="line">          key: PRIMARY</span><br><span class="line">      key_len: 8</span><br><span class="line">          ref: db_test.order_info.user_id</span><br><span class="line">         rows: 1</span><br><span class="line">     filtered: 100.00</span><br><span class="line">        Extra: NULL</span><br><span class="line">2 rows in set, 1 warning (0.00 sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ref<br>此类型通常出现在多表的 join 查询, 针对于非唯一或非主键索引, 或者是使用了 最左前缀 规则索引的查询.<br>例如下面这个例子中, 就使用到了 ref 类型的查询:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; EXPLAIN SELECT * FROM user_info, order_info WHERE user_info.id = order_info.user_id AND order_info.user_id = 5\G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: user_info</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: const</span><br><span class="line">possible_keys: PRIMARY</span><br><span class="line">          key: PRIMARY</span><br><span class="line">      key_len: 8</span><br><span class="line">          ref: const</span><br><span class="line">         rows: 1</span><br><span class="line">     filtered: 100.00</span><br><span class="line">        Extra: NULL</span><br><span class="line">*************************** 2. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: order_info</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: ref</span><br><span class="line">possible_keys: user_product_detail_index</span><br><span class="line">          key: user_product_detail_index</span><br><span class="line">      key_len: 9</span><br><span class="line">          ref: const</span><br><span class="line">         rows: 1</span><br><span class="line">     filtered: 100.00</span><br><span class="line">        Extra: Using index</span><br><span class="line">2 rows in set, 1 warning (0.00 sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>range<br>表示使用索引范围查询, 通过索引字段范围获取表中部分数据记录. 这个类型通常出现在 =, &lt;&gt;, &gt;, &gt;=, &lt;, &lt;=, IS NULL, &lt;=&gt;, BETWEEN, IN() 操作中.<br>当 type 是 range 时, 那么 EXPLAIN 输出的 ref 字段为 NULL, 并且 key_len 字段是此次查询中使用到的索引的最长的那个.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; EXPLAIN SELECT * FROM user_info WHERE id BETWEEN 2 AND 8;</span><br><span class="line">+----+-------------+-----------+------------+-------+---------------+---------+---------+------+------+----------+-------------+</span><br><span class="line">| id | select_type | table     | partitions | type  | possible_keys | key     | key_len | ref  | rows | filtered | Extra       |</span><br><span class="line">+----+-------------+-----------+------------+-------+---------------+---------+---------+------+------+----------+-------------+</span><br><span class="line">|  1 | SIMPLE      | user_info | NULL       | range | PRIMARY       | PRIMARY | 8       | NULL |    7 |   100.00 | Using where |</span><br><span class="line">+----+-------------+-----------+------------+-------+---------------+---------+---------+------+------+----------+-------------+</span><br><span class="line">1 row in set, 1 warning (0.00 sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>index<br>表示全索引扫描(full index scan), 和 ALL 类型类似, 只不过 ALL 类型是全表扫描, 而 index 类型则仅仅扫描所有的索引, 而不扫描数据.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; EXPLAIN SELECT name FROM  user_info \G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: user_info</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: index</span><br><span class="line">possible_keys: NULL</span><br><span class="line">          key: name_index</span><br><span class="line">      key_len: 152</span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: 10</span><br><span class="line">     filtered: 100.00</span><br><span class="line">        Extra: Using index</span><br><span class="line">1 row in set, 1 warning (0.00 sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ALL<br>表示全表扫描, 这个类型的查询是性能最差的查询之一. 通常来说, 我们的查询不应该出现 ALL 类型的查询, 因为这样的查询在数据量大的情况下, 对数据库的性能是巨大的灾难. 如一个查询是 ALL 类型查询, 那么一般来说可以对相应的字段添加索引来避免.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; EXPLAIN SELECT age FROM  user_info WHERE age = 20 \G</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: user_info</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: ALL</span><br><span class="line">possible_keys: NULL</span><br><span class="line">          key: NULL</span><br><span class="line">      key_len: NULL</span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: 10</span><br><span class="line">     filtered: 10.00</span><br><span class="line">        Extra: Using where</span><br><span class="line">1 row in set, 1 warning (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="联合索引与单列索引的使用"><a href="#联合索引与单列索引的使用" class="headerlink" title="联合索引与单列索引的使用"></a>联合索引与单列索引的使用</h3><ul>
+<li>多个单列索引在多条件查询时优化器会选择最优索引策略，可能只用一个索引，也可能将多个索引全用上！ 但多个单列索引底层会建立多个B+索引树，比较占用空间，也会浪费一定搜索效率，故如果只有多条件联合查询时最好建联合索引</li>
+<li>最左优先，以最左边的为起点任何连续的索引都能匹配上<br>注：如果第一个字段是范围查询需要单独建一个索引<br>注：在创建联合索引时，要根据业务需求，where子句中使用最频繁的一列放在最左边。这样的话扩展性较好，比如 userid 经常需要作为查询条件，而 mobile 不常常用，则需要把 userid 放在联合索引的第一位置，即最左边</li>
+<li>同时存在联合索引和单列索引（字段有重复的），这个时候查询mysql会怎么用索引呢？<br>这个涉及到mysql本身的查询优化器策略了，当一个表有多条索引可走时, Mysql 根据查询语句的成本来选择走哪条索引；</li>
+<li>联合索引本质<br>当创建<code>(a,b,c)</code>联合索引时,相当于创建了<code>(a)</code>单列索引<code>(a,b)</code>联合索引以及<code>(a,b,c)</code>联合索引.想要索引生效的话,只能使用 a和a,b和a,b,c三种组合</li>
+<li>需要加索引的字段，要在where条件中</li>
+<li>数据量少的字段不需要加索引；因为建索引有一定开销，如果数据量小则没必要建索引（速度反而慢）</li>
+<li>避免在where子句中使用or来连接条件,因为如果俩个字段中有一个没有索引的话,引擎会放弃索引而产生全表扫描</li>
+<li>联合索引比对每个列分别建索引更有优势，因为索引建立得越多就越占磁盘空间，在更新数据的时候速度会更慢。另外建立多列索引时，顺序也是需要注意的，应该将严格的索引放在前面，这样筛选的力度会更大，效率更高</li>
+</ul>
+<h3 id="慢日志日志记录"><a href="#慢日志日志记录" class="headerlink" title="慢日志日志记录"></a>慢日志日志记录</h3><h4 id="查看当前是否已经开启慢查询"><a href="#查看当前是否已经开启慢查询" class="headerlink" title="查看当前是否已经开启慢查询"></a>查看当前是否已经开启慢查询</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &apos;slow_query%&apos;;</span><br><span class="line"></span><br><span class="line">+---------------------+--------------------------+</span><br><span class="line">| Variable_name       | Value                    |</span><br><span class="line">+---------------------+--------------------------+</span><br><span class="line">| slow_query_log      | ON                       |</span><br><span class="line">| slow_query_log_file | STUPIDWOLF-CHEN-slow.log |</span><br><span class="line">+---------------------+--------------------------+</span><br><span class="line">2 rows in set, 1 warning (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<h4 id="开启慢查询日志记录"><a href="#开启慢查询日志记录" class="headerlink" title="开启慢查询日志记录"></a>开启慢查询日志记录</h4><ul>
+<li>方式1(永久方式)：修改配置文件<code>mysql.conf</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 是否开启慢查询日志服务. 开启:ON 关闭:OFF</span><br><span class="line">slow_query_log=ON</span><br><span class="line"># 慢查询日志文件的保存路径</span><br><span class="line">slow_query_log_file=/var/lib/mysql/instance-1-slow.log</span><br><span class="line"># 查询符合慢查询的条件，单位为秒，表示当一个查询消耗的时间超过2秒时，即视该查询为慢查询</span><br><span class="line">long_query_time=2</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>方式2(临时方式)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set global slow_query_log=&apos;ON&apos;;</span><br><span class="line">set global slow_query_log_file=&apos;/var/logs/mysql/instance-1-slow.log&apos;;</span><br><span class="line">set global long_query_time=2;</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试慢查询开启之后的效果"><a href="#测试慢查询开启之后的效果" class="headerlink" title="测试慢查询开启之后的效果"></a>测试慢查询开启之后的效果</h4><p>模拟慢查询,运行下面的sql</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select sleep(11);</span><br></pre></td></tr></table></figure>
+
+<p>查看相应的日志文件,可看到如下信息,在日志上可以看到慢查询对应的sql语句等些信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Time: 2019-09-13T08:03:10.144425Z</span><br><span class="line"># User@Host: root[root] @ localhost [::1]  Id:    18</span><br><span class="line"># Query_time: 10.999789  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 0</span><br><span class="line">use db_test;</span><br><span class="line">SET timestamp=1568361790;</span><br><span class="line">select sleep(11);</span><br></pre></td></tr></table></figure>
+
+<h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><p>引发SQL注入的根本原因是恶意用户将sql指令伪装成参数传递到后台数据库执行。</p>
+<ul>
+<li>使用预编译语句，预编译语句使用参数占位符来替代需要动态传入的参数，使得攻击者无法改变SQL语句的结构，SQL语义不会发生改变</li>
+<li>使用ORM框架，常见的ORM框架一般都有对一些关键字进行转义处理</li>
+<li>避免密码铭文存放</li>
+<li>处理好异常系统异常，在后台系统发生异常时，防止将异常信息执行直接在页面上输出</li>
+</ul>
+<h4 id="Mybatis-与-变量的区别"><a href="#Mybatis-与-变量的区别" class="headerlink" title="Mybatis$与#变量的区别"></a>Mybatis<code>$</code>与<code>#</code>变量的区别</h4><ul>
+<li>#{ } 解析为一个 JDBC 预编译语句（prepared statement）的参数标记符；一个 #{ } 被解析为一个参数占位符 ?</li>
+<li>${ } 仅仅为一个纯碎的 string 替换，在动态 SQL 解析阶段将会进行变量替换。${ } 的变量的替换阶段是在动态 SQL 解析阶段，而 #{ }的变量的替换是在 DBMS 中。</li>
+<li>#方式能够很大程度防止sql注入。$方式无法防止Sql注入。$方式一般用于传入数据库对象，例如传入表名.以及MyBatis排序时使用order by 动态参数时，用$而不是#</li>
+</ul>
+<h3 id="Spring-事务"><a href="#Spring-事务" class="headerlink" title="Spring 事务"></a>Spring 事务</h3><h4 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h4><p>事务指的是满足 ACID 特性的一组操作，可以通过 Commit 提交一个事务，也可以使用 Rollback 进行回滚</p>
+<ul>
+<li>原子性（Atomicity）</li>
+</ul>
+<p>事务被视为不可分割的最小单元，事务的所有操作要么全部提交成功，要么全部失败回滚。回滚可以用回滚日志来实现，回滚日志记录着事务所执行的修改操作，在回滚时反向执行这些修改操作即可</p>
+<ul>
+<li>一致性（Consistency）</li>
+</ul>
+<p>数据库在事务执行前后都保持一致性状态。在一致性状态下，所有事务对一个数据的读取结果都是相同的</p>
+<ul>
+<li>隔离性（Isolation）</li>
+</ul>
+<p>一个事务所做的修改在最终提交以前，对其它事务是不可见的</p>
+<ul>
+<li>持久性（Durability）</li>
+</ul>
+<p>一旦事务提交，则其所做的修改将会永远保存到数据库中。即使系统发生崩溃，事务执行的结果也不能丢失。使用重做日志来保证持久性</p>
+<hr>
+<p>事务ACID特性的理解：</p>
+<ul>
+<li>只有满足一致性，事务的执行结果才是正确的</li>
+<li>在无并发的情况下，事务串行执行，隔离性一定能够满足。此时只要能满足原子性，就一定能满足一致性</li>
+<li>在并发的情况下，多个事务并行执行，事务不仅要满足原子性，还需要满足隔离性，才能满足一致性</li>
+<li>事务满足持久化是为了能应对数据库崩溃的情况</li>
+</ul>
+<hr>
+<p>MySQL 默认采用自动提交模式。也就是说，如果不显式使用START TRANSACTION语句来开始一个事务，那么每个查询都会被当做一个事务自动提交</p>
+<h4 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h4><ul>
+<li>未提交读（READ UNCOMMITTED）</li>
+</ul>
+<p>事务中的修改，即使没有提交，对其它事务也是可见的</p>
+<ul>
+<li>提交读（READ COMMITTED）</li>
+</ul>
+<p>一个事务只能读取已经提交的事务所做的修改。换句话说，一个事务所做的修改在提交之前对其它事务是不可见的</p>
+<ul>
+<li>可重复读（REPEATABLE READ）</li>
+</ul>
+<p>保证在同一个事务中多次读取同样数据的结果是一样的</p>
+<ul>
+<li>可串行化（SERIALIZABLE）<br>强制事务串行执行。需要加锁实现，而其它隔离级别通常不需要</li>
+</ul>
+<h4 id="事务隔离级别的控制"><a href="#事务隔离级别的控制" class="headerlink" title="事务隔离级别的控制"></a>事务隔离级别的控制</h4><p>多版本并发控制（Multi-Version Concurrency Control, MVCC）是 MySQL 的 InnoDB 存储引擎实现隔离级别的一种具体方式，用于实现提交读和可重复读这两种隔离级别。而未提交读隔离级别总是读取最新的数据行，无需使用 MVCC。可串行化隔离级别需要对所有读取的行都加锁，单纯使用 MVCC 无法实现</p>
+<ul>
+<li><p>版本号</p>
+<ul>
+<li>系统版本号：是一个递增的数字，每开始一个新的事务，系统版本号就会自动递增。</li>
+<li>事务版本号：事务开始时的系统版本号</li>
+</ul>
+</li>
+<li><p>隐藏的列</p>
+<ul>
+<li>创建版本号：指示创建一个数据行的快照时的系统版本号</li>
+<li>删除版本号：如果该快照的删除版本号大于当前事务版本号表示该快照有效，否则表示该快照已经被删除了</li>
+</ul>
+</li>
+<li><p>Undo 日志<br>MVCC 使用到的快照存储在 Undo 日志中，该日志通过回滚指针把一个数据行（Record）的所有快照连接起来<br><img src="/2019/09/13/learn-about-mysql/undo-log-img.jpg" alt="undo-log-img"></p>
+</li>
+<li><p>可重复读隔离级别</p>
+<p>  当开始一个事务时，该事务的版本号肯定大于当前所有数据行快照的创建版本号，理解这一点很关键。数据行快照的创建版本号是创建数据行快照时的系统版本号，系统版本号随着创建事务而递增，因此新建一个事务时，这个事务的系统版本号比之前的系统版本号都大，也就是比所有数据行快照的创建版本号都大</p>
+<ul>
+<li><p>SELECT</p>
+<p>多个事务必须读取到同一个数据行的快照，并且这个快照是距离现在最近的一个有效快照。但是也有例外，如果有一个事务正在修改该数据行，那么它可以读取事务本身所做的修改，而不用和其它事务的读取结果一致。<br>把没有对一个数据行做修改的事务称为 T，T 所要读取的数据行快照的创建版本号必须小于等于 T 的版本号，因为如果大于 T 的版本号，那么表示该数据行快照是其它事务的最新修改，因此不能去读取它。除此之外，T 所要读取的数据行快照的删除版本号必须是未定义或者大于 T 的版本号，因为如果小于等于 T 的版本号，那么表示该数据行快照是已经被删除的，不应该去读取它</p>
+</li>
+<li><p>INSERT</p>
+<p>将当前系统版本号作为数据行快照的创建版本号</p>
+</li>
+<li><p>DELETE</p>
+<p>将当前系统版本号作为数据行快照的删除版本号</p>
+</li>
+<li><p>UPDATE</p>
+<p>将当前系统版本号作为更新前的数据行快照的删除版本号，并将当前系统版本号作为更新后的数据行快照的创建版本号。可以理解为先执行 DELETE 后执行 INSERT</p>
+</li>
+</ul>
+</li>
+<li><p>幻影读 – Next-Key Locks</p>
+</li>
+</ul>
+<p>Next-Key Locks 是 MySQL 的 InnoDB 存储引擎的一种锁实现。<br>MVCC 不能解决幻影读问题，Next-Key Locks 就是为了解决这个问题而存在的。在可重复读（REPEATABLE READ）隔离级别下，使用 MVCC + Next-Key Locks 可以解决幻读问题</p>
+<ul>
+<li>Record Locks</li>
+</ul>
+<p>锁定一个记录上的索引，而不是记录本身</p>
+<ul>
+<li>Gap Locks</li>
+</ul>
+<p>锁定索引之间的间隙，但是不包含索引本身。例如当一个事务执行以下语句，其它事务就不能在 t.c 中插入 15</p>
+<ul>
+<li>Next-Key Locks</li>
+</ul>
+<p>它是 Record Locks 和 Gap Locks 的结合，不仅锁定一个记录上的索引，也锁定索引之间的间隙</p>
+<h4 id="Spring-事务隔离级别"><a href="#Spring-事务隔离级别" class="headerlink" title="Spring 事务隔离级别"></a>Spring 事务隔离级别</h4><p>隔离级别是指若干个并发的事务之间的隔离程度。TransactionDefinition 接口中定义了五个表示隔离级别的常量：</p>
+<ul>
+<li><p>TransactionDefinition.ISOLATION_DEFAULT：这是默认值，表示使用底层数据库的默认隔离级别。对大部分数据库而言，通常这值就是TransactionDefinition.ISOLATION_READ_COMMITTED</p>
+</li>
+<li><p>TransactionDefinition.ISOLATION_READ_UNCOMMITTED：该隔离级别表示一个事务可以读取另一个事务修改但还没有提交的数据。该级别不能防止脏读和不可重复读，因此很少使用该隔离级别</p>
+</li>
+<li><p>TransactionDefinition.ISOLATION_READ_COMMITTED：该隔离级别表示一个事务只能读取另一个事务已经提交的数据。该级别可以防止脏读，这也是大多数情况下的推荐值</p>
+</li>
+<li><p>TransactionDefinition.ISOLATION_REPEATABLE_READ：该隔离级别表示一个事务在整个过程中可以多次重复执行某个查询，并且每次返回的记录都相同。即使在多次查询之间有新增的数据满足该查询，这些新增的记录也会被忽略。该级别可以防止脏读和不可重复读</p>
+</li>
+<li><p>TransactionDefinition.ISOLATION_SERIALIZABLE：所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。但是这将严重影响程序的性能。通常情况下也不会用到该级别</p>
+</li>
+</ul>
+<h4 id="事务传播行为"><a href="#事务传播行为" class="headerlink" title="事务传播行为"></a>事务传播行为</h4><p>所谓事务的传播行为是指，如果在开始当前事务之前，一个事务上下文已经存在，此时有若干选项可以指定一个事务性方法的执行行为。在TransactionDefinition定义中包括了如下几个表示传播行为的常量：</p>
+<ul>
+<li><p>TransactionDefinition.PROPAGATION_REQUIRED：如果当前存在事务，则加入该事务；如果当前没有事务，则创建一个新的事务</p>
+</li>
+<li><p>TransactionDefinition.PROPAGATION_REQUIRES_NEW：创建一个新的事务，如果当前存在事务，则把当前事务挂起</p>
+</li>
+<li><p>TransactionDefinition.PROPAGATION_SUPPORTS：如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式继续运行</p>
+</li>
+<li><p>TransactionDefinition.PROPAGATION_NOT_SUPPORTED：以非事务方式运行，如果当前存在事务，则把当前事务挂起</p>
+</li>
+<li><p>TransactionDefinition.PROPAGATION_NEVER：以非事务方式运行，如果当前存在事务，则抛出异常</p>
+</li>
+<li><p>TransactionDefinition.PROPAGATION_MANDATORY：如果当前存在事务，则加入该事务；如果当前没有事务，则抛出异常</p>
+</li>
+<li><p>TransactionDefinition.PROPAGATION_NESTED：如果当前存在事务，则创建一个事务作为当前事务的嵌套事务来运行；如果当前没有事务，则该取值等价于TransactionDefinition.PROPAGATION_REQUIRED</p>
+</li>
+</ul>
+<h4 id="事务传播行为总结"><a href="#事务传播行为总结" class="headerlink" title="事务传播行为总结"></a>事务传播行为总结</h4><ul>
+<li><p>NESTED和REQUIRED修饰的内部方法都属于外围方法事务，如果外围方法抛出异常，这两种方法的事务都会被回滚。但是REQUIRED是加入外围方法事务，所以和外围事务同属于一个事务，一旦REQUIRED事务抛出异常被回滚，外围方法事务也将被回滚。而NESTED是外围方法的子事务，有单独的保存点，所以NESTED方法抛出异常被回滚，不会影响到外围方法的事务</p>
+</li>
+<li><p>NESTED和REQUIRES_NEW都可以做到内部方法事务回滚而不影响外围方法事务。但是因为NESTED是嵌套事务，所以外围方法回滚之后，作为外围方法事务的子事务也会被回滚。而REQUIRES_NEW是通过开启新的事务实现的，内部事务和外围事务是两个事务，外围事务回滚不会影响内部事务</p>
+</li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><p><a href="https://segmentfault.com/a/1190000008131735" target="_blank" rel="noopener">explain的详细使用</a></p>
+</li>
+<li><p><a href="https://blog.csdn.net/Abysscarry/article/details/80792876" target="_blank" rel="noopener">多个单列索引和联合索引的区别详解</a></p>
+</li>
+<li><p><a href="https://zhuanlan.zhihu.com/p/23624390" target="_blank" rel="noopener">深入浅出数据库索引</a></p>
+</li>
+<li><p><a href="https://zhuanlan.zhihu.com/p/29118331" target="_blank" rel="noopener">MySQL索引总结</a></p>
+</li>
+<li><p><a href="https://github.com/CyC2018/CS-Notes/blob/master/notes/数据库系统原理.md" target="_blank" rel="noopener">数据库系统原理</a></p>
+</li>
+<li><p><a href="https://juejin.im/entry/5a8fe57e5188255de201062b" target="_blank" rel="noopener">通过详细代码了解事务传播行为</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySql/" rel="tag"># MySql</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/21/learn-about-vim/" rel="next" title="vim常用命令">
+                <i class="fa fa-chevron-left"></i> vim常用命令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div id="gitalk-container">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="stupid_wolf">
+            
+              <p class="site-author-name" itemprop="name">stupid_wolf</p>
+              <p class="site-description motion-element" itemprop="description">书里总爱写到喜出望外的傍晚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/stupidwolf" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:stupiedwolf@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#索引的本质"><span class="nav-number">1.</span> <span class="nav-text">索引的本质</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#索引的疑问"><span class="nav-number">1.1.</span> <span class="nav-text">索引的疑问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#索引的本质-1"><span class="nav-number">1.2.</span> <span class="nav-text">索引的本质</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-树的特点"><span class="nav-number">2.</span> <span class="nav-text">B+树的特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL–SQL语句执行流程"><span class="nav-number">3.</span> <span class="nav-text">MySQL–SQL语句执行流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Oracle–SQL语句执行流程"><span class="nav-number">4.</span> <span class="nav-text">Oracle–SQL语句执行流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#硬解析"><span class="nav-number">4.1.</span> <span class="nav-text">硬解析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#软解析"><span class="nav-number">4.2.</span> <span class="nav-text">软解析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL-expalin"><span class="nav-number">5.</span> <span class="nav-text">MySQL expalin</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#表结构如下："><span class="nav-number">5.1.</span> <span class="nav-text">表结构如下：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#explain命令使用"><span class="nav-number">5.2.</span> <span class="nav-text">explain命令使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#select-type的取值"><span class="nav-number">5.3.</span> <span class="nav-text">select_type的取值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#type-常用类型"><span class="nav-number">5.4.</span> <span class="nav-text">type 常用类型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#联合索引与单列索引的使用"><span class="nav-number">6.</span> <span class="nav-text">联合索引与单列索引的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#慢日志日志记录"><span class="nav-number">7.</span> <span class="nav-text">慢日志日志记录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#查看当前是否已经开启慢查询"><span class="nav-number">7.1.</span> <span class="nav-text">查看当前是否已经开启慢查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开启慢查询日志记录"><span class="nav-number">7.2.</span> <span class="nav-text">开启慢查询日志记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试慢查询开启之后的效果"><span class="nav-number">7.3.</span> <span class="nav-text">测试慢查询开启之后的效果</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL注入"><span class="nav-number">8.</span> <span class="nav-text">SQL注入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Mybatis-与-变量的区别"><span class="nav-number">8.1.</span> <span class="nav-text">Mybatis$与#变量的区别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-事务"><span class="nav-number">9.</span> <span class="nav-text">Spring 事务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#事务"><span class="nav-number">9.1.</span> <span class="nav-text">事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务隔离级别"><span class="nav-number">9.2.</span> <span class="nav-text">事务隔离级别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务隔离级别的控制"><span class="nav-number">9.3.</span> <span class="nav-text">事务隔离级别的控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-事务隔离级别"><span class="nav-number">9.4.</span> <span class="nav-text">Spring 事务隔离级别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务传播行为"><span class="nav-number">9.5.</span> <span class="nav-text">事务传播行为</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务传播行为总结"><span class="nav-number">9.6.</span> <span class="nav-text">事务传播行为总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">10.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">stupid_wolf</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">14.3k</span>
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '9b89370dc224f8ec86cd',
+          clientSecret: '1f0bc001633f5ef77b3adbd91796fd38dc4c7684',
+          repo: 'stupidwolf.github.io',
+          owner: 'stupidwolf',
+          admin: ['stupidwolf'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
